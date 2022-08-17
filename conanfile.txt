@@ -1,0 +1,6 @@
+[requires]
+fmt/9.0.0
+magic_enum/0.8.0
+
+[generators]
+cmake_find_package
