@@ -17,18 +17,9 @@ using Stack = std::vector<Value>;
 // ---------------------------------------------------------------------------------------------- //
 
 void
-print(const Stack& stack, std::ostream& os)
-{
-  os << ">>>> STACK >>>>\n";
-  std::copy(cbegin(stack), cend(stack), std::ostream_iterator<Value>{os, "\n"});
-  os << "<<<< STACK <<<<\n";
-}
-
-void
 push(Stack& stack, Value value)
 {
   stack.push_back(value);
-  //  print(stack, std::cout);
 }
 
 [[nodiscard]] Value
