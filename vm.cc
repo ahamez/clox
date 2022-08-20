@@ -41,13 +41,20 @@ peek(Stack& stack, int distance)
 struct InterpretReturn : public std::exception
 {
   explicit InterpretReturn(InterpretResult r)
-    : result{r}
+    : InterpretReturn{r, {}}
   {
   }
 
-  [[nodiscard]] const char* what() const noexcept override { return ""; }
+  explicit InterpretReturn(InterpretResult r, std::string msg)
+    : result{r}
+    , message{msg}
+  {
+  }
+
+  [[nodiscard]] const char* what() const noexcept override { return message.data(); }
 
   InterpretResult result;
+  std::string message;
 };
 
 // ---------------------------------------------------------------------------------------------- //
@@ -63,8 +70,7 @@ struct Interpret
   {
     if (not peek(stack, 0).is<double>() or not peek(stack, 1).is<double>())
     {
-      // TODO: display "Operands must be numbers."
-      throw InterpretReturn{InterpretResult::runtime_error};
+      throw InterpretReturn{InterpretResult::runtime_error, "Operands must be numbers"};
     }
     else
     {
@@ -95,8 +101,7 @@ struct Interpret
   {
     if (not peek(stack, 0).is<double>())
     {
-      // TODO: display "Operand must be a number"
-      throw InterpretReturn{InterpretResult::runtime_error};
+      throw InterpretReturn{InterpretResult::runtime_error, "Operand must be a number"};
     }
     else
     {
@@ -143,6 +148,11 @@ run(const Chunk& chunk, Stack& stack, Chunk::code_const_iterator current_ip)
   }
   catch (const InterpretReturn& r)
   {
+    if (r.result != InterpretResult::ok)
+    {
+      const auto offset = std::distance(chunk.code(), current_ip);
+      std::cerr << "line " << chunk.lines()[offset].value_or(0) << ": " << r.message << '\n';
+    }
     return r.result;
   }
 }
