@@ -76,6 +76,7 @@ main(int argc, char** argv)
     std::cerr << "Usage: clox [path]\n";
     return 64;
   }
+
   return 0;
 }
 

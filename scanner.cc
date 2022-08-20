@@ -34,12 +34,17 @@ identifier_type(const std::string_view& str)
     std::unordered_map<std::string_view, TokenType>{{"and", TokenType::and_},
                                                     {"class", TokenType::class_},
                                                     {"else", TokenType::else_},
+                                                    {"false", TokenType::false_},
+                                                    {"false", TokenType::for_},
+                                                    {"false", TokenType::fun},
                                                     {"if", TokenType::if_},
                                                     {"nil", TokenType::nil},
                                                     {"or", TokenType::or_},
                                                     {"print", TokenType::print},
                                                     {"return", TokenType::return_},
                                                     {"super", TokenType::super},
+                                                    {"this", TokenType::this_},
+                                                    {"true", TokenType::true_},
                                                     {"var", TokenType::var},
                                                     {"while", TokenType::while_}};
 

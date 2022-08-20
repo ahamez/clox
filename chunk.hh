@@ -60,6 +60,8 @@ public:
 
   [[nodiscard]] auto code() const { return cbegin(code_); }
   [[nodiscard]] auto values() const { return cbegin(values_); }
+  // TODO: fix non-homogeneous interface
+  [[nodiscard]] const auto& lines() const { return lines_; }
 
 private:
   std::vector<Opcode> code_;

@@ -91,6 +91,25 @@ Compile::advance()
 // ---------------------------------------------------------------------------------------------- //
 
 void
+Compile::literal()
+{
+  switch (previous_.type)
+  {
+    case TokenType::false_:
+      emit(OpFalse{});
+      break;
+    case TokenType::true_:
+      emit(OpTrue{});
+      break;
+    case TokenType::nil:
+      emit(OpNil{});
+      break;
+    default:
+      __builtin_unreachable();
+  }
+}
+
+void
 Compile::expression()
 {
   parse_precedence(Precedence::assignement);
@@ -114,12 +133,21 @@ void
 Compile::unary()
 {
   const auto operator_type = previous_.type;
-  assert(operator_type == TokenType::minus);
 
   // Compile the operand.
   parse_precedence(Precedence::unary);
 
-  emit(OpNegate{});
+  switch (operator_type)
+  {
+    case TokenType::bang:
+      emit(OpNot{});
+      break;
+    case TokenType::minus:
+      emit(OpNegate{});
+      break;
+    default:
+      __builtin_unreachable();
+  }
 }
 
 void
@@ -142,6 +170,24 @@ Compile::binary()
       break;
     case TokenType::slash:
       emit(OpDivide{});
+      break;
+    case TokenType::bang_equal:
+      emit(OpEqual{}, OpNot{});
+      break;
+    case TokenType::equal_equal:
+      emit(OpEqual{});
+      break;
+    case TokenType::greater:
+      emit(OpGreater{});
+      break;
+    case TokenType::greater_equal:
+      emit(OpLess{}, OpNot{});
+      break;
+    case TokenType::less:
+      emit(OpLess{});
+      break;
+    case TokenType::less_equal:
+      emit(OpGreater{}, OpNot{});
       break;
     default:
       __builtin_unreachable();

@@ -75,7 +75,7 @@ struct Interpret
     else
     {
       const auto rhs = pop(stack);
-      auto& lhs = stack.back();
+      const auto lhs = stack.back();
       stack.back() = OpBinary<Op>{}(lhs, rhs);
 
       return std::next(current_ip);
@@ -90,13 +90,22 @@ struct Interpret
     return std::next(current_ip);
   }
 
-  [[noreturn]] Chunk::code_const_iterator operator()(OpReturn)
+  Chunk::code_const_iterator operator()(OpEqual)
   {
-    //    std::cout << pop(stack) << '\n';
+    const auto rhs = pop(stack);
+    const auto lhs = stack.back();
+    stack.back() = (rhs == lhs);
 
-    throw InterpretReturn{InterpretResult::ok};
+    return std::next(current_ip);
   }
 
+  Chunk::code_const_iterator operator()(OpFalse)
+  {
+    push(stack, false);
+
+    return std::next(current_ip);
+  }
+  
   Chunk::code_const_iterator operator()(OpNegate)
   {
     if (not peek(stack, 0).is<double>())
@@ -109,6 +118,34 @@ struct Interpret
 
       return std::next(current_ip);
     }
+  }
+
+  Chunk::code_const_iterator operator()(OpNil)
+  {
+    push(stack, Nil{});
+
+    return std::next(current_ip);
+  }
+
+  Chunk::code_const_iterator operator()(OpNot)
+  {
+    push(stack, pop(stack).falsey());
+
+    return std::next(current_ip);
+  }
+
+  [[noreturn]] Chunk::code_const_iterator operator()(OpReturn)
+  {
+    std::cout << pop(stack) << '\n';
+
+    throw InterpretReturn{InterpretResult::ok};
+  }
+
+  Chunk::code_const_iterator operator()(OpTrue)
+  {
+    push(stack, true);
+
+    return std::next(current_ip);
   }
 
   [[nodiscard]] Chunk::code_const_iterator visit(std::ostream& os) const
@@ -169,7 +206,7 @@ VM::VM(VM::opt_disassemble disassemble)
 
 // ---------------------------------------------------------------------------------------------- //
 
-[[nodiscard]] InterpretResult
+InterpretResult
 VM::operator()(const Chunk& chunk) const
 {
   auto stack = Stack{};

@@ -26,7 +26,7 @@ public:
 
   VM(opt_disassemble disassemble = opt_disassemble::no);
 
-  InterpretResult operator()(const Chunk&) const;
+  [[nodiscard]] InterpretResult operator()(const Chunk&) const;
 
 private:
   opt_disassemble disassemble_;

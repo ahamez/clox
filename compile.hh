@@ -26,7 +26,7 @@ enum class Precedence
   assignement,
   or_,
   and_,
-  equality_,
+  equality,
   comparison,
   term,
   factor,
@@ -86,15 +86,24 @@ public:
 
 private:
   void advance();
-  void expression();
-  void number();
-  void grouping();
-  void unary();
-  void binary();
   void consume(TokenType, const std::string&);
+
+  void binary();
+  void expression();
+  void grouping();
+  void literal();
+  void number();
+  void unary();
 
   [[nodiscard]] static constexpr const detail::ParseRule& get_rule(TokenType);
   void parse_precedence(detail::Precedence);
+
+  template<typename Opcode, typename... Opcodes>
+  void emit(Opcode&& op, Opcodes&&... ops)
+  {
+    chunk_.add_opcode(std::forward<Opcode>(op), previous_.line);
+    emit(std::forward<Opcodes>(ops)...);
+  }
 
   template<typename Opcode>
   void emit(Opcode&& op)
@@ -128,31 +137,31 @@ private:
                Rule{TokenType::semicolon, {nullptr, nullptr, Precedence::none}},
                Rule{TokenType::slash, {nullptr, &Compile::binary, Precedence::factor}},
                Rule{TokenType::star, {nullptr, &Compile::binary, Precedence::factor}},
-               Rule{TokenType::bang, {nullptr, nullptr, Precedence::none}},
-               Rule{TokenType::bang_equal, {nullptr, nullptr, Precedence::none}},
+               Rule{TokenType::bang, {&Compile::unary, nullptr, Precedence::none}},
+               Rule{TokenType::bang_equal, {nullptr, &Compile::binary, Precedence::equality}},
                Rule{TokenType::equal, {nullptr, nullptr, Precedence::none}},
-               Rule{TokenType::equal_equal, {nullptr, nullptr, Precedence::none}},
-               Rule{TokenType::greater, {nullptr, nullptr, Precedence::none}},
-               Rule{TokenType::greater_equal, {nullptr, nullptr, Precedence::none}},
-               Rule{TokenType::less, {nullptr, nullptr, Precedence::none}},
-               Rule{TokenType::less_equal, {nullptr, nullptr, Precedence::none}},
+               Rule{TokenType::equal_equal, {nullptr, &Compile::binary, Precedence::equality}},
+               Rule{TokenType::greater, {nullptr, &Compile::binary, Precedence::comparison}},
+               Rule{TokenType::greater_equal, {nullptr, &Compile::binary, Precedence::comparison}},
+               Rule{TokenType::less, {nullptr, &Compile::binary, Precedence::comparison}},
+               Rule{TokenType::less_equal, {nullptr, &Compile::binary, Precedence::comparison}},
                Rule{TokenType::identifier, {nullptr, nullptr, Precedence::none}},
                Rule{TokenType::string, {nullptr, nullptr, Precedence::none}},
                Rule{TokenType::number, {&Compile::number, nullptr, Precedence::none}},
                Rule{TokenType::and_, {nullptr, nullptr, Precedence::none}},
                Rule{TokenType::class_, {nullptr, nullptr, Precedence::none}},
                Rule{TokenType::else_, {nullptr, nullptr, Precedence::none}},
-               Rule{TokenType::false_, {nullptr, nullptr, Precedence::none}},
+               Rule{TokenType::false_, {&Compile::literal, nullptr, Precedence::none}},
                Rule{TokenType::for_, {nullptr, nullptr, Precedence::none}},
                Rule{TokenType::fun, {nullptr, nullptr, Precedence::none}},
                Rule{TokenType::if_, {nullptr, nullptr, Precedence::none}},
-               Rule{TokenType::nil, {nullptr, nullptr, Precedence::none}},
+               Rule{TokenType::nil, {&Compile::literal, nullptr, Precedence::none}},
                Rule{TokenType::or_, {nullptr, nullptr, Precedence::none}},
                Rule{TokenType::print, {nullptr, nullptr, Precedence::none}},
                Rule{TokenType::return_, {nullptr, nullptr, Precedence::none}},
                Rule{TokenType::super, {nullptr, nullptr, Precedence::none}},
                Rule{TokenType::this_, {nullptr, nullptr, Precedence::none}},
-               Rule{TokenType::true_, {nullptr, nullptr, Precedence::none}},
+               Rule{TokenType::true_, {&Compile::literal, nullptr, Precedence::none}},
                Rule{TokenType::var, {nullptr, nullptr, Precedence::none}},
                Rule{TokenType::while_, {nullptr, nullptr, Precedence::none}},
                Rule{TokenType::error, {nullptr, nullptr, Precedence::none}},
