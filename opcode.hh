@@ -72,7 +72,6 @@ struct OpConstant
 
   std::string disassemble(const auto& chunk) const
   {
-    //    return fmt::format("OP_CONSTANT {}", std::string{ chunk.get_value(value_offset) });
     return fmt::format("OP_CONSTANT {}", chunk.get_value(value_offset));
   }
 };
