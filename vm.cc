@@ -184,8 +184,7 @@ run(const Chunk& chunk,
   {
     if (r.result != InterpretResult::ok)
     {
-      const auto offset = std::distance(chunk.code(), current_ip);
-      std::cerr << "line " << chunk.lines()[offset].value_or(0) << ": " << r.message << '\n';
+      std::cerr << "line " << chunk.line(current_ip).value_or(0) << ": " << r.message << '\n';
     }
     return r.result;
   }
@@ -208,7 +207,7 @@ VM::operator()(const Chunk& chunk) const
   auto stack = Stack{};
   stack.reserve(1024);
 
-  auto ip = chunk.code();
+  auto ip = chunk.code_cbegin();
 
   if (disassemble_ == opt_disassemble::yes)
   {

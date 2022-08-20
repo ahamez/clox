@@ -20,6 +20,7 @@ class Chunk
 public:
   using code_const_iterator = std::vector<Opcode>::const_iterator;
 
+public:
   template<typename Opcode>
   void add_opcode(Opcode&& op, std::optional<std::size_t> line = {})
   {
@@ -58,12 +59,20 @@ public:
                        disassemble_opcode(*current_opcode, *this));
   }
 
-  [[nodiscard]] auto code() const { return cbegin(code_); }
-  [[nodiscard]] auto values() const { return cbegin(values_); }
-  // TODO: fix non-homogeneous interface
-  [[nodiscard]] const auto& lines() const { return lines_; }
+  [[nodiscard]] code_const_iterator code_cbegin() const noexcept { return cbegin(code_); }
+
+  [[nodiscard]] auto code_offset(code_const_iterator code_cit) const
+  {
+    return std::distance(cbegin(code_), code_cit);
+  }
+
+  [[nodiscard]] auto line(code_const_iterator code_cit) const
+  {
+    return lines_[code_offset(code_cit)];
+  }
 
 private:
+  // The three following vectors always have the same size.
   std::vector<Opcode> code_;
   std::vector<Value> values_;
   std::vector<std::optional<std::size_t>> lines_;
