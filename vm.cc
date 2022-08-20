@@ -31,7 +31,7 @@ pop(Stack& stack)
 }
 
 [[nodiscard]] Value
-peek(Stack& stack, std::size_t distance)
+peek(Stack& stack, int distance)
 {
   return *(cend(stack) - 1 - distance);
 }
