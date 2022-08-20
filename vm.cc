@@ -8,9 +8,7 @@
 #include "vm.hh"
 
 namespace clox {
-
-namespace /* anonymous */
-{
+namespace /* anonymous */ {
 
 using Stack = std::vector<Value>;
 
@@ -42,14 +40,12 @@ struct InterpretReturn : public std::exception
 {
   explicit InterpretReturn(InterpretResult r)
     : InterpretReturn{r, {}}
-  {
-  }
+  {}
 
   explicit InterpretReturn(InterpretResult r, std::string msg)
     : result{r}
     , message{msg}
-  {
-  }
+  {}
 
   [[nodiscard]] const char* what() const noexcept override { return message.data(); }
 
@@ -105,7 +101,7 @@ struct Interpret
 
     return std::next(current_ip);
   }
-  
+
   Chunk::code_const_iterator operator()(OpNegate)
   {
     if (not peek(stack, 0).is<double>())
@@ -201,8 +197,7 @@ run(const Chunk& chunk, Stack& stack, Chunk::code_const_iterator current_ip)
 
 VM::VM(VM::opt_disassemble disassemble)
   : disassemble_{disassemble}
-{
-}
+{}
 
 // ---------------------------------------------------------------------------------------------- //
 

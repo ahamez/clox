@@ -14,8 +14,7 @@ class Expected
 private:
   Expected()
     : valid_{false}
-  {
-  }
+  {}
 
   union
   {

@@ -21,23 +21,19 @@ struct Value
 
   Value()
     : value_(Nil{})
-  {
-  }
+  {}
 
   Value(Nil)
     : value_(Nil{})
-  {
-  }
+  {}
 
   Value(double d)
     : value_{d}
-  {
-  }
+  {}
 
   Value(bool b)
     : value_{b}
-  {
-  }
+  {}
 
   template<typename T>
   [[nodiscard]] T as() const
