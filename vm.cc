@@ -144,12 +144,6 @@ struct Interpret
     return std::next(current_ip);
   }
 
-  [[nodiscard]] Chunk::code_const_iterator visit(std::ostream& os) const
-  {
-    os << chunk.disassemble(current_ip) << '\n';
-    return visit();
-  }
-
   [[nodiscard]] Chunk::code_const_iterator visit() const
   {
     return std::visit(Interpret{chunk, stack, current_ip}, *current_ip);
@@ -166,17 +160,11 @@ run(const Chunk& chunk,
 {
   try
   {
-    const auto next_ip = [&]
+    if constexpr (Disassemble == VM::opt_disassemble::yes)
     {
-      if constexpr (Disassemble == VM::opt_disassemble::yes)
-      {
-        return Interpret{chunk, stack, current_ip}.visit(os_disassembling);
-      }
-      else
-      {
-        return Interpret{chunk, stack, current_ip}.visit();
-      }
-    }();
+      os_disassembling << chunk.disassemble(current_ip) << '\n';
+    }
+    const auto next_ip = Interpret{chunk, stack, current_ip}.visit();
 
     return run<Disassemble>(chunk, stack, next_ip, os_disassembling);
   }
@@ -207,7 +195,7 @@ VM::operator()(const Chunk& chunk) const
   auto stack = Stack{};
   stack.reserve(1024);
 
-  auto ip = chunk.code_cbegin();
+  const auto ip = chunk.code_cbegin();
 
   if (disassemble_ == opt_disassemble::yes)
   {
