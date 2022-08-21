@@ -1,10 +1,6 @@
-// #include <iostream>
 #include <unordered_map>
 
-// #include <fmt/core.h>
-// #include <magic_enum.hpp>
-
-#include "scanner.hh"
+#include "clox/scanner.hh"
 
 // ---------------------------------------------------------------------------------------------- //
 

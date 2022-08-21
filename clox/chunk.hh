@@ -8,8 +8,8 @@
 
 #include <fmt/core.h>
 
-#include "opcode.hh"
-#include "value.hh"
+#include "clox/opcode.hh"
+#include "clox/value.hh"
 
 namespace clox {
 

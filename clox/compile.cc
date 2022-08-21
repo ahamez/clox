@@ -5,7 +5,7 @@
 #include <fmt/core.h>
 #include <magic_enum.hpp>
 
-#include "compile.hh"
+#include "clox/compile.hh"
 
 namespace clox {
 

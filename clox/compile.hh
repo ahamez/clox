@@ -5,9 +5,9 @@
 
 #include <magic_enum.hpp>
 
-#include "chunk.hh"
-#include "expected.hh"
-#include "scanner.hh"
+#include "clox/chunk.hh"
+#include "clox/expected.hh"
+#include "clox/scanner.hh"
 
 namespace clox {
 

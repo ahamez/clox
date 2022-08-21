@@ -2,9 +2,11 @@
 #include <ranges>
 #include <string>
 
-#include "compile.hh"
-#include "scanner.hh"
-#include "vm.hh"
+#include "clox/compile.hh"
+#include "clox/scanner.hh"
+#include "clox/vm.hh"
+
+#include "version.hh"
 
 // ---------------------------------------------------------------------------------------------- //
 
@@ -61,6 +63,8 @@ int
 main(int argc, char** argv)
 {
   using namespace clox;
+
+  std::cout << "Clox interpreter (v" << CLOX_VERSION << ")\n";
 
   if (argc == 1)
   {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "chunk.hh"
+#include "clox/chunk.hh"
 
 namespace clox {
 

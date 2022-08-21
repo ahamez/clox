@@ -5,7 +5,7 @@
 #include <ostream>
 #include <vector>
 
-#include "vm.hh"
+#include "clox/vm.hh"
 
 namespace clox {
 namespace /* anonymous */ {

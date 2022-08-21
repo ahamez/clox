@@ -7,7 +7,7 @@
 
 #include <fmt/core.h>
 
-#include "value.hh"
+#include "clox/value.hh"
 
 namespace clox {
 
