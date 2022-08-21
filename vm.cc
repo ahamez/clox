@@ -44,7 +44,7 @@ struct InterpretReturn : public std::exception
 
   explicit InterpretReturn(InterpretResult r, std::string msg)
     : result{r}
-    , message{msg}
+    , message{std::move(msg)}
   {}
 
   [[nodiscard]] const char* what() const noexcept override { return message.data(); }
