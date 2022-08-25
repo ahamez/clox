@@ -5,6 +5,8 @@
 
 #include <fmt/ostream.h>
 
+#include "clox/visitor.hh"
+
 namespace clox {
 
 // ---------------------------------------------------------------------------------------------- //
@@ -49,34 +51,29 @@ struct Value
 
   [[nodiscard]] bool falsey() const noexcept
   {
-    struct falsey
-    {
-      bool operator()(bool b) const noexcept { return not b; }
-      bool operator()(double) const noexcept { return false; }
-      bool operator()(Nil) const noexcept { return false; }
-    };
-
-    return std::visit(falsey{}, value_);
+    return std::visit(visitor{[](bool b) { return not b; },
+                              [](double) { return false; },
+                              [](Nil) { return false; },
+                      value_);
   }
 
   friend std::ostream& operator<<(std::ostream& os, const Value& value)
   {
-    // TODO: dispatch on real type to avoid calling std::boolalpha for double and Nil
-    std::visit([&os](auto&& arg) { os << std::boolalpha << arg; }, value.value_);
+    std::visit(visitor{[&os](bool arg) { os << std::boolalpha << arg; },
+                       [&os](double arg) { os << arg; },
+                       [&os](Nil arg) { os << arg; },
+               value.value_);
     return os;
   }
 
-  struct EqualityVisitor
-  {
-    bool operator()(bool lhs, bool rhs) const noexcept { return lhs == rhs; }
-    bool operator()(double lhs, double rhs) const noexcept { return lhs == rhs; }
-    bool operator()(Nil, Nil) const noexcept { return true; }
-    bool operator()(auto, auto) const noexcept { return false; }
-  };
-
   bool operator==(const Value& rhs) const
   {
-    return std::visit(EqualityVisitor{}, value_, rhs.value_);
+    return std::visit(visitor{[](bool lhs, bool rhs) { return lhs == rhs; },
+                              [](double lhs, double rhs) { return lhs == rhs; },
+                              [](Nil, Nil) { return true; },
+                              [](const auto&, const auto&) { return false; }},
+                      value_,
+                      rhs.value_);
   }
 
   bool operator!=(const Value& rhs) const { return !(rhs == *this); }

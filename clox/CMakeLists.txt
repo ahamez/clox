@@ -9,6 +9,7 @@ add_library(
   value.hh
   vm.cc
   vm.hh
+  visitor.hh
 )
 
 target_include_directories(
