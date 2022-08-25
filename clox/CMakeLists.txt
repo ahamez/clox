@@ -10,6 +10,7 @@ add_library(
   vm.cc
   vm.hh
   visitor.hh
+  nil.hh
 )
 
 target_include_directories(

@@ -5,16 +5,12 @@
 
 #include <fmt/ostream.h>
 
+#include "clox/nil.hh"
 #include "clox/visitor.hh"
 
 namespace clox {
 
 // ---------------------------------------------------------------------------------------------- //
-
-struct Nil
-{
-  friend std::ostream& operator<<(std::ostream& os, const Nil& nil) { return os << "nil"; }
-};
 
 struct Value
 {
