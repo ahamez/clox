@@ -11,12 +11,14 @@ add_library(
   vm.hh
   visitor.hh
   nil.hh
+  obj_string.hh
 )
 
 target_include_directories(
   clox
   PUBLIC
   ${CMAKE_SOURCE_DIR}
+  ${Boost_INCLUDE_DIRS}
 )
 
 target_link_libraries(
