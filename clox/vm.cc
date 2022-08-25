@@ -2,7 +2,6 @@
 #include <exception>
 #include <iostream>
 #include <iterator>
-#include <ostream>
 #include <vector>
 
 #include "clox/vm.hh"

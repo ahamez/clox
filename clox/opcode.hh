@@ -2,7 +2,7 @@
 
 // ---------------------------------------------------------------------------------------------- //
 
-#include <ostream>
+#include <iosfwd>
 #include <variant>
 
 #include <fmt/core.h>

@@ -2,8 +2,8 @@
 
 #include <cassert>
 #include <cstdint>
+#include <iosfwd>
 #include <optional>
-#include <ostream>
 #include <vector>
 
 #include <fmt/core.h>
