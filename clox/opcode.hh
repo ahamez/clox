@@ -89,7 +89,7 @@ using OpLess = OpBinary<OpLessImpl>;
 
 struct OpConstant
 {
-  std::size_t value_offset;
+  std::uint16_t value_offset;
 
   std::string disassemble(const auto& chunk) const
   {

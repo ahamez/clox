@@ -28,7 +28,7 @@ public:
     lines_.emplace_back(line);
   }
 
-  std::size_t add_value(Value v)
+  std::uint16_t add_value(Value v)
   {
     const auto it = values_.insert(values_.end(), v);
     return it - cbegin(values_);
