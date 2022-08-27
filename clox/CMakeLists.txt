@@ -4,6 +4,7 @@ add_library(
   compile.cc
   compile.hh
   expected.hh
+  memory.cc
   memory.hh
   nil.hh
   obj_string.hh
