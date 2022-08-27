@@ -3,15 +3,16 @@ add_library(
   compile.cc
   compile.hh
   expected.hh
+  nil.hh
+  obj_string.hh
   opcode.hh
   scanner.cc
   scanner.hh
+  token.hh
   value.hh
+  visitor.hh
   vm.cc
   vm.hh
-  visitor.hh
-  nil.hh
-  obj_string.hh
 )
 
 target_include_directories(
