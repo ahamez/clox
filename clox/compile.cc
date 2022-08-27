@@ -19,6 +19,7 @@ Compile::Compile(Scanner&& scanner)
   , previous_{TokenType::error}
   , had_error_{false}
   , panic_mode_{false}
+  , chunk_{}
 {}
 
 // ---------------------------------------------------------------------------------------------- //
