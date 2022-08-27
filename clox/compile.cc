@@ -15,8 +15,8 @@ using namespace clox::detail;
 
 Compile::Compile(Scanner&& scanner)
   : scanner_{std::move(scanner)}
-  , current_{TokenType::error}
-  , previous_{TokenType::error}
+  , current_{}
+  , previous_{}
   , had_error_{false}
   , panic_mode_{false}
   , chunk_{}

@@ -59,6 +59,18 @@ enum class TokenType
 
 struct Token
 {
+  Token()
+    : type{TokenType::error}
+    , token{}
+    , line{}
+  {}
+
+  Token(TokenType type, std::string_view token, std::size_t line)
+    : type{type}
+    , token{token}
+    , line{line}
+  {}
+
   TokenType type;
   std::string_view token;
   std::size_t line;

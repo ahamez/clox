@@ -214,7 +214,7 @@ Scanner::skip_whitespaces() noexcept
 Token
 Scanner::make_token(TokenType type) const noexcept
 {
-  return Token{.type = type, .token = std::string_view{token_start_, current_}, .line = line_};
+  return Token{type, std::string_view{token_start_, current_}, line_};
 }
 
 // ---------------------------------------------------------------------------------------------- //
@@ -222,7 +222,7 @@ Scanner::make_token(TokenType type) const noexcept
 Token
 Scanner::make_error_token(const std::string_view& msg) const noexcept
 {
-  return Token{.type = TokenType::error, .token = msg, .line = line_};
+  return Token{TokenType::error, msg, line_};
 }
 
 // ---------------------------------------------------------------------------------------------- //
