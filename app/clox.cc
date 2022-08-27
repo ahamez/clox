@@ -32,7 +32,7 @@ void
 interpret(const std::string& content, clox::VM::opt_disassemble opt_disassemble)
 {
   using namespace clox;
-  if (const auto chunk = Compile{Scanner{content}}(); chunk)
+  if (auto chunk = Compile{Scanner{content}}(); chunk)
   {
     const auto result = VM{opt_disassemble}(chunk.get());
     std::cout << magic_enum::enum_name(result) << '\n';

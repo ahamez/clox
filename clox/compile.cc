@@ -214,6 +214,13 @@ Compile::binary(Chunk& chunk)
   }
 }
 
+void
+Compile::string(Chunk& chunk)
+{
+  auto obj = chunk.memory().make_string(std::string{previous_.token});
+  emit(chunk, previous_.line, OpConstant{chunk.add_value(obj)});
+}
+
 constexpr const ParseRule&
 Compile::get_rule(TokenType token_type)
 {

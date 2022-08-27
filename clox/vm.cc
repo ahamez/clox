@@ -189,7 +189,7 @@ VM::VM(VM::opt_disassemble disassemble)
 // ---------------------------------------------------------------------------------------------- //
 
 InterpretResult
-VM::operator()(const Chunk& chunk) const
+VM::operator()(Chunk& chunk) const
 {
   auto stack = Stack{};
   stack.reserve(1024);

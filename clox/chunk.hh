@@ -5,6 +5,7 @@
 #include <optional>
 #include <vector>
 
+#include "clox/memory.hh"
 #include "clox/opcode.hh"
 #include "clox/value.hh"
 
@@ -32,12 +33,15 @@ public:
   [[nodiscard]] std::size_t code_offset(code_const_iterator code_cit) const;
   [[nodiscard]] std::optional<std::size_t> line(code_const_iterator code_cit) const;
 
+  [[nodiscard]] Memory& memory() noexcept;
+
   friend std::ostream& operator<<(std::ostream& os, const Chunk& chunk);
 
 private:
   std::vector<Opcode> code_;
   std::vector<std::optional<std::size_t>> lines_;
   std::vector<Value> values_;
+  Memory memory_;
 };
 
 // ---------------------------------------------------------------------------------------------- //

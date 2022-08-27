@@ -65,6 +65,14 @@ Chunk::line(Chunk::code_const_iterator code_cit) const
 
 // ---------------------------------------------------------------------------------------------- //
 
+Memory&
+Chunk::memory() noexcept
+{
+  return memory_;
+}
+
+// ---------------------------------------------------------------------------------------------- //
+
 std::ostream&
 operator<<(std::ostream& os, const Chunk& chunk)
 {

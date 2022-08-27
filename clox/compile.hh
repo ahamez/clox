@@ -95,6 +95,7 @@ private:
   void literal(Chunk&);
   void number(Chunk&);
   void unary(Chunk&);
+  void string(Chunk&);
 
   [[nodiscard]] static constexpr const detail::ParseRule& get_rule(TokenType);
   void parse_precedence(Chunk&, detail::Precedence);
@@ -133,7 +134,7 @@ private:
                Rule{TokenType::less, {nullptr, &Compile::binary, Precedence::comparison}},
                Rule{TokenType::less_equal, {nullptr, &Compile::binary, Precedence::comparison}},
                Rule{TokenType::identifier, {nullptr, nullptr, Precedence::none}},
-               Rule{TokenType::string, {nullptr, nullptr, Precedence::none}},
+               Rule{TokenType::string, {&Compile::string, nullptr, Precedence::none}},
                Rule{TokenType::number, {&Compile::number, nullptr, Precedence::none}},
                Rule{TokenType::and_, {nullptr, nullptr, Precedence::none}},
                Rule{TokenType::class_, {nullptr, nullptr, Precedence::none}},
