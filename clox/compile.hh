@@ -18,7 +18,7 @@ class Compile;
 
 namespace detail { namespace /*anonymous*/ {
 
-using ParseFn = void (Compile::*)();
+using ParseFn = void (Compile::*)(Chunk&);
 
 enum class Precedence
 {
@@ -82,34 +82,22 @@ class Compile
 {
 public:
   explicit Compile(Scanner&&);
+
   Expected<Chunk, std::string> operator()();
 
 private:
   void advance();
   void consume(TokenType, const std::string&);
 
-  void binary();
-  void expression();
-  void grouping();
-  void literal();
-  void number();
-  void unary();
+  void expression(Chunk&);
+  void binary(Chunk&);
+  void grouping(Chunk&);
+  void literal(Chunk&);
+  void number(Chunk&);
+  void unary(Chunk&);
 
   [[nodiscard]] static constexpr const detail::ParseRule& get_rule(TokenType);
-  void parse_precedence(detail::Precedence);
-
-  template<typename Opcode, typename... Opcodes>
-  void emit(Opcode&& op, Opcodes&&... ops)
-  {
-    chunk_.add_opcode(std::forward<Opcode>(op), previous_.line);
-    emit(std::forward<Opcodes>(ops)...);
-  }
-
-  template<typename Opcode>
-  void emit(Opcode&& op)
-  {
-    chunk_.add_opcode(std::forward<Opcode>(op), previous_.line);
-  }
+  void parse_precedence(Chunk&, detail::Precedence);
 
   void error_at_current(const std::string&);
   void error_at_previous(const std::string&);
@@ -121,7 +109,6 @@ private:
   Token previous_;
   bool had_error_;
   bool panic_mode_;
-  Chunk chunk_;
 
   using Rule = detail::Rule;
   using Precedence = detail::Precedence;
