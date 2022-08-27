@@ -35,7 +35,8 @@ interpret(const std::string& content, clox::VM::opt_disassemble disassemble)
   auto scanner = Scanner{content};
   if (const auto chunk = Compile{std::move(scanner)}(); chunk)
   {
-    VM{disassemble}(chunk.get());
+    const auto result = VM{disassemble}(chunk.get());
+    std::cout << magic_enum::enum_name(result) << '\n';
   }
   else
   {
