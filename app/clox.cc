@@ -29,13 +29,12 @@ read_file(const std::string& file_path)
 }
 
 void
-interpret(const std::string& content, clox::VM::opt_disassemble disassemble)
+interpret(const std::string& content, clox::VM::opt_disassemble opt_disassemble)
 {
   using namespace clox;
-  auto scanner = Scanner{content};
-  if (const auto chunk = Compile{std::move(scanner)}(); chunk)
+  if (const auto chunk = Compile{Scanner{content}}(); chunk)
   {
-    const auto result = VM{disassemble}(chunk.get());
+    const auto result = VM{opt_disassemble}(chunk.get());
     std::cout << magic_enum::enum_name(result) << '\n';
   }
   else
