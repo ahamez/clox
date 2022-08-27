@@ -17,8 +17,8 @@ struct ObjString
 
   bi::slist_member_hook<bi::link_mode<bi::auto_unlink>> member_hook_;
 
-  explicit ObjString(std::string ptr)
-    : str{std::move(ptr)}
+  explicit ObjString(std::string str)
+    : str{std::move(str)}
   {}
 
   bool operator==(const ObjString& rhs) const { return str == rhs.str; }
