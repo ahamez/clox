@@ -56,7 +56,7 @@ struct InterpretReturn : public std::exception
 
 struct Interpret
 {
-  const Chunk& chunk;
+  Chunk& chunk;
   Stack& stack;
   const Chunk::code_const_iterator current_ip;
 
@@ -74,6 +74,32 @@ struct Interpret
       stack.back() = OpBinary<Op>{}(lhs, rhs);
 
       return std::next(current_ip);
+    }
+  }
+
+  Chunk::code_const_iterator operator()(OpAdd)
+  {
+    if (peek(stack, 0).is<double>() and peek(stack, 1).is<double>())
+    {
+      const auto rhs = pop(stack);
+      const auto lhs = stack.back();
+      stack.back() = OpAdd{}(lhs, rhs);
+      return std::next(current_ip);
+    }
+    else if (peek(stack, 0).is<const ObjString*>() and peek(stack, 1).is<const ObjString*>())
+    {
+      const auto rhs = pop(stack);
+      const auto lhs = stack.back();
+
+      const auto& lhs_str = lhs.as<const ObjString*>()->str;
+      const auto& rhs_str = rhs.as<const ObjString*>()->str;
+
+      stack.back() = chunk.memory().make_string(lhs_str + rhs_str);
+      return std::next(current_ip);
+    }
+    else
+    {
+      throw InterpretReturn{InterpretResult::runtime_error, "Operands must be numbers or strings"};
     }
   }
 
@@ -152,7 +178,7 @@ struct Interpret
 // NOLINTBEGIN(misc-no-recursion)
 template<VM::opt_disassemble Disassemble>
 [[nodiscard]] InterpretResult
-run(const Chunk& chunk,
+run(Chunk& chunk,
     Stack& stack,
     Chunk::code_const_iterator current_ip,
     std::ostream& os_disassembling)
