@@ -17,6 +17,7 @@ public:
 
 private:
   [[nodiscard]] Token make_token(TokenType) const noexcept;
+  [[nodiscard]] Token make_token(TokenType, const std::string_view&) const noexcept;
   [[nodiscard]] Token make_error_token(const std::string_view&) const noexcept;
   [[nodiscard]] Token make_string_token() noexcept;
   [[nodiscard]] Token make_number_token() noexcept;

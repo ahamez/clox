@@ -220,9 +220,17 @@ Scanner::make_token(TokenType type) const noexcept
 // ---------------------------------------------------------------------------------------------- //
 
 Token
+Scanner::make_token(TokenType type, const std::string_view& token) const noexcept
+{
+  return Token{type, token, line_};
+}
+
+// ---------------------------------------------------------------------------------------------- //
+
+Token
 Scanner::make_error_token(const std::string_view& msg) const noexcept
 {
-  return Token{TokenType::error, msg, line_};
+  return make_token(TokenType::error, msg);
 }
 
 // ---------------------------------------------------------------------------------------------- //
@@ -247,7 +255,8 @@ Scanner::make_string_token() noexcept
   // Consume the closing quote.
   std::advance(current_, 1);
 
-  return make_token(TokenType::string);
+  // +1 / -1: remove quotes
+  return make_token(TokenType::string, {token_start_ + 1, current_ - 1});
 }
 
 // ---------------------------------------------------------------------------------------------- //
