@@ -72,10 +72,10 @@ public:
   }
 
 private:
-  // The three following vectors always have the same size.
+  // The code_ and lines_ vectors always have the same size.
   std::vector<Opcode> code_;
-  std::vector<Value> values_;
   std::vector<std::optional<std::size_t>> lines_;
+  std::vector<Value> values_;
 };
 
 // ---------------------------------------------------------------------------------------------- //
