@@ -12,6 +12,7 @@ add_library(
   scanner.cc
   scanner.hh
   token.hh
+  value.cc
   value.hh
   visitor.hh
   vm.cc
