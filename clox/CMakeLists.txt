@@ -20,6 +20,10 @@ add_library(
   vm.hh
 )
 
+if (ipo_supported)
+  set_property(TARGET clox PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif ()
+
 target_include_directories(
   clox
   PUBLIC

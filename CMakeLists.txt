@@ -13,6 +13,14 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 add_compile_options(-Wall -Wextra -Werror)
 
+include(CheckIPOSupported)
+check_ipo_supported(RESULT ipo_supported OUTPUT ipo_supported_result)
+if (!ipo_supported)
+  message(NOTICE "IPO is not supported")
+  message(VERBOSE "IPO is not supported: ${ipo_supported_result}")
+endif ()
+
+
 # Support folders in IDEs
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
