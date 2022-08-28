@@ -1,5 +1,6 @@
 add_library(
   clox
+  OBJECT
   chunk.cc
   compile.cc
   compile.hh
