@@ -1,7 +1,7 @@
 add_executable(
   test_clox
   test_value.cc
-  test_vm.cc
+  test_clox.cc
 )
 
 target_link_libraries(
