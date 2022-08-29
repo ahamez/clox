@@ -37,7 +37,7 @@ interpret(const std::string& content, clox::VM::opt_disassemble opt_disassemble)
     std::cout << "Status: " << magic_enum::enum_name(result.status) << '\n';
     if (result.stack.size() > 0)
     {
-      std::cout << "Result: " << result.stack.last() << '\n';
+      std::cout << "Result: " << result.stack.top() << '\n';
     }
   }
   else

@@ -46,8 +46,8 @@ struct Interpret
     else
     {
       const auto rhs = stack.pop();
-      const auto lhs = stack.last();
-      stack.last() = OpBinary<Op>{}(lhs, rhs);
+      const auto lhs = stack.top();
+      stack.top() = OpBinary<Op>{}(lhs, rhs);
 
       return std::next(current_ip);
     }
@@ -58,19 +58,19 @@ struct Interpret
     if (stack.peek(0).is<double>() and stack.peek(1).is<double>())
     {
       const auto rhs = stack.pop();
-      const auto lhs = stack.last();
-      stack.last() = OpAdd{}(lhs, rhs);
+      const auto lhs = stack.top();
+      stack.top() = OpAdd{}(lhs, rhs);
       return std::next(current_ip);
     }
     else if (stack.peek(0).is<const ObjString*>() and stack.peek(1).is<const ObjString*>())
     {
       const auto rhs = stack.pop();
-      const auto lhs = stack.last();
+      const auto lhs = stack.top();
 
       const auto& lhs_str = lhs.as<const ObjString*>()->str;
       const auto& rhs_str = rhs.as<const ObjString*>()->str;
 
-      stack.last() = chunk.memory().make_string(lhs_str + rhs_str);
+      stack.top() = chunk.memory().make_string(lhs_str + rhs_str);
       return std::next(current_ip);
     }
     else
@@ -91,8 +91,8 @@ struct Interpret
   Chunk::code_const_iterator operator()(OpEqual)
   {
     const auto rhs = stack.pop();
-    const auto lhs = stack.last();
-    stack.last() = (rhs == lhs);
+    const auto lhs = stack.top();
+    stack.top() = (rhs == lhs);
 
     return std::next(current_ip);
   }
@@ -112,7 +112,7 @@ struct Interpret
     }
     else
     {
-      stack.last() = -stack.last().as<double>();
+      stack.top() = -stack.top().as<double>();
 
       return std::next(current_ip);
     }

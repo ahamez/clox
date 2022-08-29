@@ -16,8 +16,8 @@ public:
   void push(Value value);
   [[nodiscard]] Value pop();
   [[nodiscard]] Value peek(int distance) const;
-  [[nodiscard]] const Value& last() const;
-  [[nodiscard]] Value& last();
+  [[nodiscard]] const Value& top() const;
+  [[nodiscard]] Value& top();
   [[nodiscard]] std::size_t size() const noexcept;
 
 private:

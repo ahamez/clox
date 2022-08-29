@@ -39,13 +39,13 @@ Stack::peek(int distance) const
 // ---------------------------------------------------------------------------------------------- //
 
 const Value&
-Stack::last() const
+Stack::top() const
 {
   return stack_.back();
 }
 
 Value&
-Stack::last()
+Stack::top()
 {
   return stack_.back();
 }
