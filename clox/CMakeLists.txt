@@ -12,6 +12,8 @@ add_library(
   opcode.hh
   scanner.cc
   scanner.hh
+  stack.cc
+  stack.hh
   token.hh
   value.cc
   value.hh

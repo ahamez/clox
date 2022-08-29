@@ -4,34 +4,11 @@
 #include <iterator>
 #include <vector>
 
+#include "clox/stack.hh"
 #include "clox/vm.hh"
 
 namespace clox {
 namespace /* anonymous */ {
-
-using Stack = std::vector<Value>;
-
-// ---------------------------------------------------------------------------------------------- //
-
-void
-push(Stack& stack, Value value)
-{
-  stack.push_back(value);
-}
-
-[[nodiscard]] Value
-pop(Stack& stack)
-{
-  const auto value = stack.back();
-  stack.pop_back();
-  return value;
-}
-
-[[nodiscard]] Value
-peek(Stack& stack, int distance)
-{
-  return *(cend(stack) - 1 - distance);
-}
 
 // ---------------------------------------------------------------------------------------------- //
 
@@ -63,15 +40,15 @@ struct Interpret
   template<typename Op>
   Chunk::code_const_iterator operator()(OpBinary<Op>)
   {
-    if (not peek(stack, 0).is<double>() or not peek(stack, 1).is<double>())
+    if (not stack.peek(0).is<double>() or not stack.peek(1).is<double>())
     {
       throw InterpretReturn{InterpretResult::runtime_error, "Operands must be numbers"};
     }
     else
     {
-      const auto rhs = pop(stack);
-      const auto lhs = stack.back();
-      stack.back() = OpBinary<Op>{}(lhs, rhs);
+      const auto rhs = stack.pop();
+      const auto lhs = stack.last();
+      stack.last() = OpBinary<Op>{}(lhs, rhs);
 
       return std::next(current_ip);
     }
@@ -79,22 +56,22 @@ struct Interpret
 
   Chunk::code_const_iterator operator()(OpAdd)
   {
-    if (peek(stack, 0).is<double>() and peek(stack, 1).is<double>())
+    if (stack.peek(0).is<double>() and stack.peek(1).is<double>())
     {
-      const auto rhs = pop(stack);
-      const auto lhs = stack.back();
-      stack.back() = OpAdd{}(lhs, rhs);
+      const auto rhs = stack.pop();
+      const auto lhs = stack.last();
+      stack.last() = OpAdd{}(lhs, rhs);
       return std::next(current_ip);
     }
-    else if (peek(stack, 0).is<const ObjString*>() and peek(stack, 1).is<const ObjString*>())
+    else if (stack.peek(0).is<const ObjString*>() and stack.peek(1).is<const ObjString*>())
     {
-      const auto rhs = pop(stack);
-      const auto lhs = stack.back();
+      const auto rhs = stack.pop();
+      const auto lhs = stack.last();
 
       const auto& lhs_str = lhs.as<const ObjString*>()->str;
       const auto& rhs_str = rhs.as<const ObjString*>()->str;
 
-      stack.back() = chunk.memory().make_string(lhs_str + rhs_str);
+      stack.last() = chunk.memory().make_string(lhs_str + rhs_str);
       return std::next(current_ip);
     }
     else
@@ -106,36 +83,36 @@ struct Interpret
   Chunk::code_const_iterator operator()(OpConstant op)
   {
     const auto value = chunk.get_value(op.value_offset);
-    push(stack, value);
+    stack.push(value);
 
     return std::next(current_ip);
   }
 
   Chunk::code_const_iterator operator()(OpEqual)
   {
-    const auto rhs = pop(stack);
-    const auto lhs = stack.back();
-    stack.back() = (rhs == lhs);
+    const auto rhs = stack.pop();
+    const auto lhs = stack.last();
+    stack.last() = (rhs == lhs);
 
     return std::next(current_ip);
   }
 
   Chunk::code_const_iterator operator()(OpFalse)
   {
-    push(stack, false);
+    stack.push(false);
 
     return std::next(current_ip);
   }
 
   Chunk::code_const_iterator operator()(OpNegate)
   {
-    if (not peek(stack, 0).is<double>())
+    if (not stack.peek(0).is<double>())
     {
       throw InterpretReturn{InterpretResult::runtime_error, "Operand must be a number"};
     }
     else
     {
-      stack.back() = -stack.back().as<double>();
+      stack.last() = -stack.last().as<double>();
 
       return std::next(current_ip);
     }
@@ -143,28 +120,28 @@ struct Interpret
 
   Chunk::code_const_iterator operator()(OpNil)
   {
-    push(stack, Nil{});
+    stack.push(Nil{});
 
     return std::next(current_ip);
   }
 
   Chunk::code_const_iterator operator()(OpNot)
   {
-    push(stack, pop(stack).falsey());
+    stack.push(stack.pop().falsey());
 
     return std::next(current_ip);
   }
 
   [[noreturn]] Chunk::code_const_iterator operator()(OpReturn)
   {
-    std::cout << pop(stack) << '\n';
+    std::cout << stack.pop() << '\n';
 
     throw InterpretReturn{InterpretResult::ok};
   }
 
   Chunk::code_const_iterator operator()(OpTrue)
   {
-    push(stack, true);
+    stack.push(true);
 
     return std::next(current_ip);
   }
@@ -218,7 +195,6 @@ InterpretResult
 VM::operator()(Chunk& chunk) const
 {
   auto stack = Stack{};
-  stack.reserve(1024);
 
   const auto ip = chunk.code_cbegin();
 
