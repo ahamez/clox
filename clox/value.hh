@@ -37,7 +37,7 @@ public:
     return std::holds_alternative<T>(value_);
   }
 
-  [[nodiscard]] bool falsey() const noexcept;
+  [[nodiscard]] bool falsey() const;
 
   bool operator==(const Value& rhs) const;
   bool operator!=(const Value& rhs) const;

@@ -28,7 +28,7 @@ Value::Value(const ObjString* obj)
 // ---------------------------------------------------------------------------------------------- //
 
 bool
-Value::falsey() const noexcept
+Value::falsey() const
 {
   return std::visit(visitor{[](bool b) { return not b; },
                             [](double) { return false; },
