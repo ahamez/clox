@@ -22,6 +22,9 @@ if (!ipo_supported)
   message(VERBOSE "IPO is not supported: ${ipo_supported_result}")
 endif ()
 
+include(asan)
+message(${CMAKE_CXX_FLAGS_ASAN})
+
 include(clang-tidy-checks)
 set(CMAKE_CXX_CLANG_TIDY
     clang-tidy;
