@@ -34,7 +34,11 @@ interpret(const std::string& content, clox::VM::opt_disassemble opt_disassemble)
   if (auto chunk = Compile{Scanner{content}}(); chunk)
   {
     const auto result = VM{opt_disassemble}(chunk.get());
-    std::cout << magic_enum::enum_name(result) << '\n';
+    std::cout << "Status: " << magic_enum::enum_name(result.status) << '\n';
+    if (result.stack.size() > 0)
+    {
+      std::cout << "Result: " << result.stack.last() << '\n';
+    }
   }
   else
   {

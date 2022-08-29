@@ -1,17 +1,25 @@
 #pragma once
 
 #include "clox/chunk.hh"
+#include "clox/stack.hh"
 
 namespace clox {
 
 // ---------------------------------------------------------------------------------------------- //
 
-enum class InterpretResult
+enum class InterpretResultStatus
 {
   ok,
   compile_error,
   runtime_error
 };
+
+// ---------------------------------------------------------------------------------------------- //
+
+ struct InterpretResult {
+   InterpretResultStatus status;
+   Stack stack;
+ };
 
 // ---------------------------------------------------------------------------------------------- //
 

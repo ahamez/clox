@@ -4,7 +4,6 @@
 #include <iterator>
 #include <vector>
 
-#include "clox/stack.hh"
 #include "clox/vm.hh"
 
 namespace clox {
@@ -14,18 +13,18 @@ namespace /* anonymous */ {
 
 struct InterpretReturn : public std::exception
 {
-  explicit InterpretReturn(InterpretResult r)
-    : InterpretReturn{r, {}}
+  explicit InterpretReturn(InterpretResultStatus status)
+    : InterpretReturn{status, {}}
   {}
 
-  explicit InterpretReturn(InterpretResult r, std::string msg)
-    : result{r}
+  explicit InterpretReturn(InterpretResultStatus status, std::string msg)
+    : status{status}
     , message{std::move(msg)}
   {}
 
   [[nodiscard]] const char* what() const noexcept override { return message.data(); }
 
-  InterpretResult result;
+  InterpretResultStatus status;
   std::string message;
 };
 
@@ -42,7 +41,7 @@ struct Interpret
   {
     if (not stack.peek(0).is<double>() or not stack.peek(1).is<double>())
     {
-      throw InterpretReturn{InterpretResult::runtime_error, "Operands must be numbers"};
+      throw InterpretReturn{InterpretResultStatus::runtime_error, "Operands must be numbers"};
     }
     else
     {
@@ -76,7 +75,8 @@ struct Interpret
     }
     else
     {
-      throw InterpretReturn{InterpretResult::runtime_error, "Operands must be numbers or strings"};
+      throw InterpretReturn{InterpretResultStatus::runtime_error,
+                            "Operands must be numbers or strings"};
     }
   }
 
@@ -108,7 +108,7 @@ struct Interpret
   {
     if (not stack.peek(0).is<double>())
     {
-      throw InterpretReturn{InterpretResult::runtime_error, "Operand must be a number"};
+      throw InterpretReturn{InterpretResultStatus::runtime_error, "Operand must be a number"};
     }
     else
     {
@@ -134,9 +134,7 @@ struct Interpret
 
   [[noreturn]] Chunk::code_const_iterator operator()(OpReturn)
   {
-    std::cout << stack.pop() << '\n';
-
-    throw InterpretReturn{InterpretResult::ok};
+    throw InterpretReturn{InterpretResultStatus::ok};
   }
 
   Chunk::code_const_iterator operator()(OpTrue)
@@ -172,11 +170,11 @@ run(Chunk& chunk,
   }
   catch (const InterpretReturn& r)
   {
-    if (r.result != InterpretResult::ok)
+    if (r.status != InterpretResultStatus::ok)
     {
       std::cerr << "line " << chunk.line(current_ip).value_or(0) << ": " << r.message << '\n';
     }
-    return r.result;
+    return {r.status, std::move(stack)};
   }
 }
 // NOLINTEND(misc-no-recursion)

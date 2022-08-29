@@ -18,6 +18,7 @@ public:
   [[nodiscard]] Value peek(int distance) const;
   [[nodiscard]] const Value& last() const;
   [[nodiscard]] Value& last();
+  [[nodiscard]] std::size_t size() const noexcept;
 
 private:
   std::vector<Value> stack_;
