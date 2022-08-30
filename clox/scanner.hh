@@ -30,7 +30,7 @@ private:
   std::string::const_iterator token_start_;
   std::string::const_iterator current_;
   const std::string::const_iterator end_;
-  std::size_t line_;
+  std::size_t line_{1};
 };
 
 // ---------------------------------------------------------------------------------------------- //

@@ -2,7 +2,15 @@ string(
   CONCAT
   CLANG_TIDY_CHECKS
   -checks=-*,
+  cert-*,
+  clang-diagnostic*,
   clang-analyzer-*,
   boost*,
   bugprone-*,
+  clang-diagnostic-*,
+  clang-analyzer-*,
+  modernize-*,
+  -modernize-use-trailing-return-type,
+  -modernize-use-default-member-init,
+  performance-*
 )

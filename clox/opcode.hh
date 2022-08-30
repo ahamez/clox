@@ -16,7 +16,7 @@ namespace clox {
 template<typename Impl>
 struct OpBinary
 {
-  std::string disassemble(const auto&) const { return std::string{Impl::sv}; }
+  [[nodiscard]] std::string disassemble(const auto&) const { return std::string{Impl::sv}; }
   Value operator()(Value lhs, Value rhs) const
     noexcept(noexcept(std::declval<Impl>()(Value{}, Value{})))
   {
@@ -91,7 +91,7 @@ struct OpConstant
 {
   std::uint16_t value_offset;
 
-  std::string disassemble(const auto& chunk) const
+  [[nodiscard]] std::string disassemble(const auto& chunk) const
   {
     return fmt::format("OP_CONSTANT {}", chunk.get_value(value_offset));
   }
@@ -101,49 +101,49 @@ struct OpConstant
 
 struct OpEqual
 {
-  std::string disassemble(const auto&) const { return "OP_EQUAL"; }
+  [[nodiscard]] std::string disassemble(const auto&) const { return "OP_EQUAL"; }
 };
 
 // ---------------------------------------------------------------------------------------------- //
 
 struct OpFalse
 {
-  std::string disassemble(const auto&) const { return "OP_FALSE"; }
+  [[nodiscard]] std::string disassemble(const auto&) const { return "OP_FALSE"; }
 };
 
 // ---------------------------------------------------------------------------------------------- //
 
 struct OpNegate
 {
-  std::string disassemble(const auto&) const { return "OP_NEGATE"; }
+  [[nodiscard]] std::string disassemble(const auto&) const { return "OP_NEGATE"; }
 };
 
 // ---------------------------------------------------------------------------------------------- //
 
 struct OpNil
 {
-  std::string disassemble(const auto&) const { return "OP_NIL"; }
+  [[nodiscard]] std::string disassemble(const auto&) const { return "OP_NIL"; }
 };
 
 // ---------------------------------------------------------------------------------------------- //
 
 struct OpNot
 {
-  std::string disassemble(const auto&) const { return "OP_NOT"; }
+  [[nodiscard]] std::string disassemble(const auto&) const { return "OP_NOT"; }
 };
 
 // ---------------------------------------------------------------------------------------------- //
 
 struct OpReturn
 {
-  std::string disassemble(const auto&) const { return "OP_RETURN"; }
+  [[nodiscard]] std::string disassemble(const auto&) const { return "OP_RETURN"; }
 };
 
 // ---------------------------------------------------------------------------------------------- //
 
 struct OpTrue
 {
-  std::string disassemble(const auto&) const { return "OP_TRUE"; }
+  [[nodiscard]] std::string disassemble(const auto&) const { return "OP_TRUE"; }
 };
 
 // ---------------------------------------------------------------------------------------------- //
@@ -165,7 +165,7 @@ using Opcode = std::variant<OpAdd,
 
 // ---------------------------------------------------------------------------------------------- //
 
-std::string
+[[nodiscard]] std::string
 disassemble_opcode(const Opcode& opcode, const auto& chunk)
 {
   return std::visit([&chunk](auto&& arg) { return arg.disassemble(chunk); }, opcode);

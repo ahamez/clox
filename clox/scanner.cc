@@ -62,7 +62,6 @@ Scanner::Scanner(const std::string& str)
   : token_start_{}
   , current_{cbegin(str)}
   , end_{cend(str)}
-  , line_(1)
 {}
 
 // ---------------------------------------------------------------------------------------------- //

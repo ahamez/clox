@@ -16,7 +16,7 @@ namespace clox {
 // Forward declaration to declare ParseFn.
 class Compile;
 
-namespace detail { namespace /*anonymous*/ {
+namespace detail {
 
 using ParseFn = void (Compile::*)(Chunk&);
 
@@ -74,7 +74,7 @@ make_rules_impl(ParserRules& rules, T x, Ts... xs)
   return make_rules_impl<Ts...>(rules, std::forward<Ts>(xs)...);
 }
 
-}} // detail::anonymous
+} // detail::anonymous
 
 // ---------------------------------------------------------------------------------------------- //
 
@@ -108,8 +108,8 @@ private:
   Scanner scanner_;
   Token current_;
   Token previous_;
-  bool had_error_;
-  bool panic_mode_;
+  bool had_error_{false};
+  bool panic_mode_{false};
 
   using Rule = detail::Rule;
   using Precedence = detail::Precedence;

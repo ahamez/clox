@@ -141,7 +141,7 @@ public:
     }
   }
 
-  T& get()
+  [[nodiscard]] T& get()
   {
     if (not valid_)
     {
@@ -151,7 +151,7 @@ public:
     return value_;
   }
 
-  const T& get() const
+  [[nodiscard]] const T& get() const
   {
     if (not valid_)
     {
@@ -161,7 +161,7 @@ public:
     return value_;
   }
 
-  E& error()
+  [[nodiscard]] E& error()
   {
     if (valid_)
     {
@@ -171,7 +171,7 @@ public:
     return error_;
   }
 
-  const E& error() const
+  [[nodiscard]] const E& error() const
   {
     if (valid_)
     {
