@@ -14,3 +14,11 @@ string(
   -modernize-use-default-member-init,
   performance-*
 )
+
+set(
+  CMAKE_CXX_CLANG_TIDY
+  clang-tidy;
+  -header-filter=${CMAKE_CURRENT_SOURCE_DIR};
+  -warnings-as-errors=*;
+  -checks=${CLANG_TIDY_CHECKS};
+)

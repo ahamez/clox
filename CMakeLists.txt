@@ -22,15 +22,8 @@ if (!ipo_supported)
   message(VERBOSE "IPO is not supported: ${ipo_supported_result}")
 endif ()
 
-include(asan)
-message(${CMAKE_CXX_FLAGS_ASAN})
-
-include(clang-tidy-checks)
-set(CMAKE_CXX_CLANG_TIDY
-    clang-tidy;
-    -header-filter=${CMAKE_CURRENT_SOURCE_DIR};
-    -warnings-as-errors=*;
-    -checks=${CLANG_TIDY_CHECKS};)
+include(Asan)
+include(ClangTidyChecks)
 
 # Support folders in IDEs
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
