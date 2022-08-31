@@ -16,10 +16,11 @@ enum class InterpretResultStatus
 
 // ---------------------------------------------------------------------------------------------- //
 
- struct InterpretResult {
-   InterpretResultStatus status;
-   Stack stack;
- };
+struct InterpretResult
+{
+  InterpretResultStatus status;
+  Stack stack;
+};
 
 // ---------------------------------------------------------------------------------------------- //
 
