@@ -6,8 +6,6 @@ project(
   DESCRIPTION "A C++ Clox interpreter from the \"Crafting Interpreters\" book"
   LANGUAGES CXX)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -21,6 +19,11 @@ if (!ipo_supported)
   message(NOTICE "IPO is not supported")
   message(VERBOSE "IPO is not supported: ${ipo_supported_result}")
 endif ()
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+option(CODE_COVERAGE "Activate code coverage" OFF)
+message(STATUS "Code coverage: ${CODE_COVERAGE}")
 
 include(Asan)
 include(ClangTidyChecks)
@@ -38,6 +41,17 @@ find_package(magic_enum REQUIRED)
 
 include(CTest)
 include(Catch)
+
+if (CODE_COVERAGE)
+  include(CodeCoverage)
+  append_coverage_compiler_flags()
+  setup_target_for_coverage_lcov(
+    NAME coverage
+    EXECUTABLE ctest -j ${PROCESSOR_COUNT}
+    DEPENDENCIES test_clox
+    EXCLUDE /*.conan* /*llvm/* app/* test/*
+  )
+endif ()
 
 add_subdirectory(app)
 add_subdirectory(clox)
