@@ -150,23 +150,23 @@ struct Interpret
   }
 };
 
-// NOLINTBEGIN(misc-no-recursion)
 template<VM::opt_disassemble Disassemble>
 [[nodiscard]] InterpretResult
-run(Chunk& chunk,
-    Stack& stack,
-    Chunk::code_const_iterator current_ip,
-    std::ostream& os_disassembling)
+run(Chunk& chunk)
 {
+  auto current_ip = chunk.code_cbegin();
+  auto stack = Stack{};
+
   try
   {
-    if constexpr (Disassemble == VM::opt_disassemble::yes)
+    while (true)
     {
-      os_disassembling << chunk.disassemble(current_ip) << '\n';
+      if constexpr (Disassemble == VM::opt_disassemble::yes)
+      {
+        std::cout << chunk.disassemble(current_ip) << '\n';
+      }
+      current_ip = Interpret{chunk, stack, current_ip}.visit();
     }
-    const auto next_ip = Interpret{chunk, stack, current_ip}.visit();
-
-    return run<Disassemble>(chunk, stack, next_ip, os_disassembling);
   }
   catch (const InterpretReturn& r)
   {
@@ -177,7 +177,6 @@ run(Chunk& chunk,
     return {r.status, std::move(stack)};
   }
 }
-// NOLINTEND(misc-no-recursion)
 
 } // anonymous
 
@@ -192,17 +191,13 @@ VM::VM(VM::opt_disassemble disassemble)
 InterpretResult
 VM::operator()(Chunk& chunk) const
 {
-  auto stack = Stack{};
-
-  const auto ip = chunk.code_cbegin();
-
   if (disassemble_ == opt_disassemble::yes)
   {
-    return run<opt_disassemble::yes>(chunk, stack, ip, std::cout);
+    return run<opt_disassemble::yes>(chunk);
   }
   else
   {
-    return run<opt_disassemble::no>(chunk, stack, ip, std::cout);
+    return run<opt_disassemble::no>(chunk);
   }
 }
 
