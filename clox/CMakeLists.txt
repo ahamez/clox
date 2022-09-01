@@ -8,6 +8,7 @@ add_library(
   memory.cc
   memory.hh
   nil.hh
+  obj_string.cc
   obj_string.hh
   opcode.hh
   scanner.cc

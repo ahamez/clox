@@ -1,9 +1,10 @@
 #pragma once
 
+#include <functional>
 #include <iosfwd>
 #include <string>
 
-#include <boost/intrusive/slist.hpp>
+#include <boost/intrusive/unordered_set.hpp>
 
 namespace clox {
 
@@ -11,36 +12,37 @@ namespace clox {
 
 namespace bi = boost::intrusive;
 
-struct ObjString
+struct ObjString : public bi::unordered_set_base_hook<bi::link_mode<bi::normal_link>>
 {
+  ObjString(const ObjString&) = delete;
+
   std::string str;
 
-  bi::slist_member_hook<bi::link_mode<bi::auto_unlink>> member_hook_;
+  explicit ObjString(std::string);
 
-  explicit ObjString(std::string str)
-    : str{std::move(str)}
-  {}
+  bool operator==(const ObjString&) const noexcept;
+  bool operator!=(const ObjString&) const noexcept;
 
-  bool operator==(const ObjString& rhs) const { return str == rhs.str; }
-  bool operator!=(const ObjString& rhs) const { return !(rhs == *this); }
-  friend std::ostream& operator<<(std::ostream& os, const ObjString& string)
-  {
-    return os << string.str;
-  }
+  friend std::ostream& operator<<(std::ostream& os, const ObjString& string);
 };
 
 // ---------------------------------------------------------------------------------------------- //
 
-namespace detail {
-
-using MemberHookOption = bi::member_hook<ObjString,
-                                         bi::slist_member_hook<bi::link_mode<bi::auto_unlink>>,
-                                         &ObjString::member_hook_>;
-
-}
-
-using ObjStringList = bi::slist<ObjString, bi::constant_time_size<false>, detail::MemberHookOption>;
+using ObjStringSet = bi::unordered_set<ObjString,
+                                       bi::constant_time_size<false>,
+                                       bi::power_2_buckets<true>,
+                                       bi::hash<std::hash<ObjString>>>;
 
 // ---------------------------------------------------------------------------------------------- //
 
-}
+} // namespace clox
+
+// ---------------------------------------------------------------------------------------------- //
+
+template<>
+struct std::hash<clox::ObjString>
+{
+  std::size_t operator()(const clox::ObjString&) const noexcept;
+};
+
+// ---------------------------------------------------------------------------------------------- //

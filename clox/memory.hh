@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "clox/obj_string.hh"
 
 namespace clox {
@@ -9,20 +11,19 @@ namespace clox {
 class Memory
 {
 public:
-  Memory() = default;
+  Memory()
+    : string_set_buckets_{1024}
+    , string_set_{ObjStringSet::bucket_traits{string_set_buckets_.data(), 1024}}
+  {}
+  //  TODO: check if move constructor is valid with an intrusive container
   Memory(Memory&&) = default;
   ~Memory();
 
-  template<typename... Args>
-  [[nodiscard]] const ObjString* make_string(Args... args)
-  {
-    auto* obj = new ObjString{std::forward<Args>(args)...};
-    string_list_.push_front(*obj);
-    return obj;
-  }
+  [[nodiscard]] const ObjString* make_string(std::string);
 
 private:
-  ObjStringList string_list_;
+  std::vector<ObjStringSet::bucket_type> string_set_buckets_;
+  ObjStringSet string_set_;
 };
 
 // ---------------------------------------------------------------------------------------------- //
