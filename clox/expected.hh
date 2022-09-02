@@ -22,14 +22,13 @@ private:
     E error_;
   };
 
-  bool valid_;
+  bool valid_; // NOLINT(modernize-use-default-member-init)
 
 public:
   template<typename... Args>
   static Expected ok(Args&&... args)
   {
-    // auto result = Expected{};
-    Expected result;
+    auto result = Expected{};
     result.valid_ = true;
     new (&result.value_) T{std::forward<Args>(args)...};
 
@@ -39,8 +38,7 @@ public:
   template<typename... Args>
   static Expected error(Args&&... args)
   {
-    // auto result = Expected{};
-    Expected result;
+    auto result = Expected{};
     result.valid_ = false;
     new (&result.error_) E{std::forward<Args>(args)...};
 
