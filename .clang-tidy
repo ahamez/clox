@@ -9,10 +9,16 @@ Checks: 'clang-diagnostic-*,
         misc-*,
         modernize-*,
         -modernize-use-trailing-return-type,
-        performance-*'
+        performance-*,
+        readability-*,
+        -readability-identifier-length,
+        -readability-else-after-return,
+        -readability-named-parameter,
+        -readability-redundant-access-specifiers
+        '
 WarningsAsErrors: '*'
-FormatStyle:     file
+FormatStyle: file
 CheckOptions:
-  - key:             misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
-    value:           'true'
+  - key: misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
+    value: 'true'
 ...

@@ -21,7 +21,7 @@ public:
   [[nodiscard]] std::size_t size() const noexcept;
 
 private:
-  std::vector<Value> stack_;
+  std::vector<Value> stack_{};
 };
 
 // ---------------------------------------------------------------------------------------------- //

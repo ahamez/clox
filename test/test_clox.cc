@@ -4,6 +4,8 @@
 #include "clox/value.hh"
 #include "clox/vm.hh"
 
+// NOLINTBEGIN(readability-magic-numbers)
+
 auto
 interpret(const std::string& content)
 {
@@ -26,3 +28,5 @@ TEST_CASE("Can interpret a string comparison", "[vm]")
   static constexpr auto input = R"("a" + "b" == "ab")";
   REQUIRE(interpret(input) == clox::Value{true});
 }
+
+// NOLINTEND(readability-magic-numbers)

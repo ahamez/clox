@@ -59,8 +59,7 @@ identifier_type(const std::string_view& str)
 // ---------------------------------------------------------------------------------------------- //
 
 Scanner::Scanner(const std::string& str)
-  : token_start_{}
-  , current_{cbegin(str)}
+  : current_{cbegin(str)}
   , end_{cend(str)}
 {}
 

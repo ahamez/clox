@@ -106,8 +106,8 @@ private:
 
 private:
   Scanner scanner_;
-  Token current_;
-  Token previous_;
+  Token current_{};
+  Token previous_{};
   bool had_error_{false};
   bool panic_mode_{false};
 

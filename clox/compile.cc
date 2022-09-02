@@ -7,6 +7,8 @@
 
 #include "clox/compile.hh"
 
+// NOLINTBEGIN(readability-make-member-function-const)
+
 namespace clox {
 
 using namespace clox::detail;
@@ -36,8 +38,6 @@ emit(Chunk& chunk, std::size_t line, Opcode&& op, Opcodes&&... ops)
 
 Compile::Compile(Scanner&& scanner)
   : scanner_{std::move(scanner)}
-  , current_{}
-  , previous_{}
 {}
 
 // ---------------------------------------------------------------------------------------------- //
@@ -215,7 +215,7 @@ Compile::binary(Chunk& chunk)
 void
 Compile::string(Chunk& chunk)
 {
-  auto obj = chunk.memory().make_string(std::string{previous_.token});
+  const auto* obj = chunk.memory().make_string(std::string{previous_.token});
   emit(chunk, previous_.line, OpConstant{chunk.add_value(obj)});
 }
 
@@ -288,3 +288,5 @@ Compile::operator()()
 // ---------------------------------------------------------------------------------------------- //
 
 } // namespace clox
+
+// NOLINTEND(readability-make-member-function-const)

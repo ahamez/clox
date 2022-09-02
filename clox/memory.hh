@@ -10,10 +10,12 @@ namespace clox {
 
 class Memory
 {
+  static constexpr auto string_set_nb_buckets = 1024;
+
 public:
   Memory()
-    : string_set_buckets_{1024}
-    , string_set_{ObjStringSet::bucket_traits{string_set_buckets_.data(), 1024}}
+    : string_set_buckets_{string_set_nb_buckets}
+    , string_set_{ObjStringSet::bucket_traits{string_set_buckets_.data(), string_set_nb_buckets}}
   {}
   //  TODO: check if move constructor is valid with an intrusive container
   Memory(Memory&&) = default;
