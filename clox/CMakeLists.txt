@@ -29,9 +29,14 @@ endif ()
 
 target_include_directories(
   clox
-  SYSTEM
   PUBLIC
   ${CMAKE_SOURCE_DIR}
+)
+
+target_include_directories(
+  clox
+  SYSTEM
+  PUBLIC
   ${Boost_INCLUDE_DIRS}
 )
 
