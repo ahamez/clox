@@ -54,7 +54,7 @@ identifier_type(const std::string_view& str)
   }
 }
 
-} // namespace anonymous
+} // namespace
 
 // ---------------------------------------------------------------------------------------------- //
 
@@ -297,4 +297,4 @@ Scanner::make_identifier_token() noexcept
 
 // ---------------------------------------------------------------------------------------------- //
 
-} // clox
+} // namespace clox

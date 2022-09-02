@@ -47,7 +47,7 @@ public:
 
 // ---------------------------------------------------------------------------------------------- //
 
-} // clox
+} // namespace clox
 
 template<>
 struct fmt::formatter<clox::Value> : ostream_formatter

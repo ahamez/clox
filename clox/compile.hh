@@ -74,7 +74,7 @@ make_rules_impl(ParserRules& rules, T x, Ts... xs)
   return make_rules_impl<Ts...>(rules, std::forward<Ts>(xs)...);
 }
 
-} // detail::anonymous
+} // namespace detail
 
 // ---------------------------------------------------------------------------------------------- //
 
@@ -158,4 +158,4 @@ private:
 
 // ---------------------------------------------------------------------------------------------- //
 
-} // clox
+} // namespace clox

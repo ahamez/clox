@@ -173,4 +173,4 @@ disassemble_opcode(const Opcode& opcode, const auto& chunk)
 
 // ---------------------------------------------------------------------------------------------- //
 
-} // clox
+} // namespace clox

@@ -32,7 +32,7 @@ emit(Chunk& chunk, std::size_t line, Opcode&& op, Opcodes&&... ops)
   emit(chunk, line, std::forward<Opcodes>(ops)...);
 }
 
-} // namespace anonymous
+} // namespace
 
 // ---------------------------------------------------------------------------------------------- //
 
