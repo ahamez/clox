@@ -1,0 +1,18 @@
+---
+Checks: 'clang-diagnostic-*,
+        clang-analyzer-*,
+        boost*,
+        bugprone-*,
+        cert-*,
+        clang-analyzer-*,
+        clang-diagnostic-*,
+        misc-*,
+        modernize-*,
+        -modernize-use-trailing-return-type,
+        performance-*'
+WarningsAsErrors: '*'
+FormatStyle:     file
+CheckOptions:
+  - key:             misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
+    value:           'true'
+...
