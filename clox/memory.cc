@@ -14,6 +14,8 @@ Memory::~Memory()
 const ObjString*
 Memory::make_string(std::string str)
 {
+  // TODO: rehash if string_set_.size() >= 1024. Requires constant-time size().
+
   auto commit = ObjStringSet::insert_commit_data{};
   const auto [it, inserted] = string_set_.insert_check(
     str,
