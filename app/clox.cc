@@ -80,7 +80,7 @@ main(int argc, char** argv)
   else
   {
     std::cerr << "Usage: clox [path]\n";
-    return 64;
+    return -1;
   }
 
   return 0;
