@@ -1,10 +1,10 @@
 #pragma once
 
-#include <cstdint>
 #include <iosfwd>
 #include <optional>
 #include <vector>
 
+#include "clox/chunk_fwd.hh"
 #include "clox/memory.hh"
 #include "clox/opcode.hh"
 #include "clox/value.hh"
@@ -26,8 +26,8 @@ public:
     lines_.emplace_back(line);
   }
 
-  [[nodiscard]] std::uint16_t add_value(Value);
-  [[nodiscard]] Value get_value(std::size_t offset) const;
+  [[nodiscard]] ConstantRef add_constant(Value);
+  [[nodiscard]] Value get_constant(ConstantRef) const;
   [[nodiscard]] std::string disassemble(code_const_iterator current_opcode) const;
   [[nodiscard]] code_const_iterator code_cbegin() const noexcept;
   [[nodiscard]] std::size_t code_offset(code_const_iterator code_cit) const;
@@ -40,7 +40,7 @@ public:
 private:
   std::vector<Opcode> code_;
   std::vector<std::optional<std::size_t>> lines_;
-  std::vector<Value> values_;
+  std::vector<Value> constants_;
   Memory memory_;
 };
 

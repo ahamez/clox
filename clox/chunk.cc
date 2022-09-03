@@ -8,19 +8,19 @@ namespace clox {
 
 // ---------------------------------------------------------------------------------------------- //
 
-std::uint16_t
-Chunk::add_value(Value v)
+ConstantRef
+Chunk::add_constant(Value v)
 {
-  const auto it = values_.insert(values_.end(), v);
-  return it - cbegin(values_);
+  const auto it = constants_.insert(constants_.end(), v);
+  return {.offset = static_cast<std::uint16_t>(it - cbegin(constants_))};
 }
 
 // ---------------------------------------------------------------------------------------------- //
 
 Value
-Chunk::get_value(std::size_t offset) const
+Chunk::get_constant(ConstantRef ref) const
 {
-  return values_[offset];
+  return constants_[ref.offset];
 }
 
 // ---------------------------------------------------------------------------------------------- //

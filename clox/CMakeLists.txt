@@ -2,6 +2,7 @@ add_library(
   clox
   OBJECT
   chunk.cc
+  chunk_fwd.hh
   compile.cc
   compile.hh
   expected.hh

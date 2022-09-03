@@ -7,6 +7,7 @@
 
 #include <fmt/core.h>
 
+#include "clox/chunk_fwd.hh"
 #include "clox/value.hh"
 
 namespace clox {
@@ -89,11 +90,11 @@ using OpLess = OpBinary<OpLessImpl>;
 
 struct OpConstant
 {
-  std::uint16_t value_offset;
+  ConstantRef constant;
 
   [[nodiscard]] std::string disassemble(const auto& chunk) const
   {
-    return fmt::format("OP_CONSTANT {}", chunk.get_value(value_offset));
+    return fmt::format("OP_CONSTANT {}", chunk.get_constant(constant));
   }
 };
 

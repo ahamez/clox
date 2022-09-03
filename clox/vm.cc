@@ -82,7 +82,7 @@ struct Interpret
 
   Chunk::code_const_iterator operator()(OpConstant op)
   {
-    const auto value = chunk.get_value(op.value_offset);
+    const auto value = chunk.get_constant(op.constant);
     stack.push(value);
 
     return std::next(current_ip);
