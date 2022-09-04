@@ -13,7 +13,6 @@ namespace clox {
 enum class InterpretResultStatus
 {
   ok,
-  compile_error,
   runtime_error
 };
 
