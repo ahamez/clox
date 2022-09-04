@@ -51,4 +51,5 @@ target_link_libraries(
   PUBLIC
   fmt::fmt
   magic_enum::magic_enum
+  type_safe::type_safe
 )

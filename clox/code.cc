@@ -10,13 +10,15 @@ ConstantIndex
 Code::add_constant(Value v)
 {
   const auto it = constants_.insert(constants_.end(), v);
-  return {.index = static_cast<std::uint16_t>(it - constants_.cbegin())};
+  const auto index = static_cast<std::uint16_t>(it - constants_.cbegin());
+
+  return ConstantIndex{index};
 }
 
 Value
-Code::get_constant(ConstantIndex ref) const
+Code::get_constant(ConstantIndex index) const
 {
-  return constants_[ref.index];
+  return constants_[static_cast<std::uint16_t>(index)];
 }
 
 // ---------------------------------------------------------------------------------------------- //

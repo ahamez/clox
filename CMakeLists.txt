@@ -38,6 +38,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR})
 find_package(Boost REQUIRED)
 find_package(Catch2 REQUIRED)
 find_package(fmt REQUIRED)
+find_package(type_safe REQUIRED)
 find_package(magic_enum REQUIRED)
 
 include(CTest)
