@@ -42,10 +42,9 @@ interpret(const std::string& content, clox::VM& vm, clox::CodeContext& code_cont
 }
 
 void
-interpret(const std::string& content,
-          clox::VM::opt_disassemble disassemble = clox::VM::opt_disassemble::no)
+interpret(const std::string& content)
 {
-  auto vm = clox::VM{disassemble};
+  auto vm = clox::VM{clox::VM::opt_disassemble::yes};
   auto code_context = clox::CodeContext{};
   interpret(content, vm, code_context);
 }
@@ -82,7 +81,7 @@ main(int argc, char** argv)
   else if (argc == 2)
   {
     const auto file_content = read_file(argv[1]);
-    interpret(file_content, VM::opt_disassemble::yes);
+    interpret(file_content);
   }
   else
   {
