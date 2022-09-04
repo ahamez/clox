@@ -1,12 +1,15 @@
 add_library(
   clox
   OBJECT
-  chunk.cc
-  chunk_context.cc
-  chunk_context.hh
-  chunk_fwd.hh
+  chunk.hh
+  code.cc
+  code_context.cc
+  code_context.hh
+  code_fwd.hh
   compile.cc
   compile.hh
+  disassemble.cc
+  disassemble.hh
   expected.hh
   memory.cc
   memory.hh

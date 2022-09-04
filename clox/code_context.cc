@@ -2,14 +2,14 @@
 
 #include <fmt/core.h>
 
-#include "clox/chunk_context.hh"
+#include "clox/code_context.hh"
 
 namespace clox {
 
 // ---------------------------------------------------------------------------------------------- //
 
 GlobalVariableIndex
-ChunkContext::maybe_add_global_variable(const std::string& name)
+CodeContext::maybe_add_global_variable(const std::string& name)
 {
   if (const auto search = global_variables_.find(name); search != cend(global_variables_))
   {
@@ -27,7 +27,7 @@ ChunkContext::maybe_add_global_variable(const std::string& name)
 }
 
 std::string
-ChunkContext::get_global_variable(clox::GlobalVariableIndex index) const
+CodeContext::get_global_variable(clox::GlobalVariableIndex index) const
 {
   // TODO implement reverse lookup index -> variable name
   const auto search =
@@ -46,7 +46,7 @@ ChunkContext::get_global_variable(clox::GlobalVariableIndex index) const
 }
 
 GlobalVariableIndex
-ChunkContext::last_global_variable_index() const noexcept
+CodeContext::last_global_variable_index() const noexcept
 {
   return last_global_variable_index_;
 }

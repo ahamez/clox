@@ -1,17 +1,13 @@
 #pragma once
 
-#include "clox/code.hh"
-#include "clox/code_context.hh"
+#include "clox/chunk.hh"
 
 namespace clox {
 
 // ---------------------------------------------------------------------------------------------- //
 
-struct Chunk
-{
-  Code& code;
-  CodeContext& code_cxt;
-};
+[[nodiscard]] std::string
+disassemble(Code::const_iterator, const Chunk&);
 
 // ---------------------------------------------------------------------------------------------- //
 

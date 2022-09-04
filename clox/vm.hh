@@ -3,7 +3,6 @@
 #include <vector>
 
 #include "clox/chunk.hh"
-#include "clox/chunk_context.hh"
 #include "clox/stack.hh"
 
 namespace clox {
@@ -37,7 +36,8 @@ public:
 
   VM(opt_disassemble disassemble = opt_disassemble::no);
 
-  [[nodiscard]] InterpretResult operator()(Chunk&, ChunkContext&);
+  [[nodiscard]] InterpretResult operator()(Chunk&);
+  [[nodiscard]] InterpretResult operator()(Chunk&&);
 
   auto& globals() noexcept { return globals_; }
 

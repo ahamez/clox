@@ -2,13 +2,13 @@
 
 #include <unordered_map>
 
-#include "clox/chunk_fwd.hh"
+#include "clox/code_fwd.hh"
 
 namespace clox {
 
 // ---------------------------------------------------------------------------------------------- //
 
-struct ChunkContext
+struct CodeContext
 {
   std::unordered_map<std::string, GlobalVariableIndex> global_variables_{};
   GlobalVariableIndex last_global_variable_index_{.index = 0};

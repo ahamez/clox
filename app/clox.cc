@@ -28,16 +28,16 @@ read_file(const std::string& file_path)
 }
 
 void
-interpret(const std::string& content, clox::VM& vm, clox::ChunkContext& chunk_context)
+interpret(const std::string& content, clox::VM& vm, clox::CodeContext& code_context)
 {
   using namespace clox;
-  if (auto chunk = Compile{Scanner{content}}(chunk_context); chunk)
+  if (auto code = Compile{Scanner{content}}(code_context); code)
   {
-    const auto result = vm(chunk.get(), chunk_context);
+    const auto result = vm(Chunk{code.get(), code_context});
   }
   else
   {
-    std::cerr << chunk.error() << '\n';
+    std::cerr << code.error() << '\n';
   }
 }
 
@@ -46,15 +46,15 @@ interpret(const std::string& content,
           clox::VM::opt_disassemble disassemble = clox::VM::opt_disassemble::no)
 {
   auto vm = clox::VM{disassemble};
-  auto chunk_context = clox::ChunkContext{};
-  interpret(content, vm, chunk_context);
+  auto code_context = clox::CodeContext{};
+  interpret(content, vm, code_context);
 }
 
 void
 repl()
 {
   auto vm = clox::VM{clox::VM::opt_disassemble::no};
-  auto chunk_context = clox::ChunkContext{};
+  auto chunk_context = clox::CodeContext{};
 
   std::cout << "> ";
   for (auto line = std::string{}; std::getline(std::cin, line);)

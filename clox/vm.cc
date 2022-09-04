@@ -4,6 +4,7 @@
 #include <iterator>
 #include <vector>
 
+#include "clox/disassemble.hh"
 #include "clox/vm.hh"
 
 namespace clox {
@@ -35,13 +36,12 @@ struct InterpretReturn : public std::exception
 struct Interpret
 {
   Chunk& chunk;
-  ChunkContext& chunk_cxt;
   VM& vm;
   Stack& stack;
-  const Chunk::code_const_iterator current_ip;
+  const Code::const_iterator current_ip;
 
   template<typename Op>
-  Chunk::code_const_iterator operator()(OpBinary<Op>)
+  Code::const_iterator operator()(OpBinary<Op>)
   {
     if (not stack.peek(0).is<double>() or not stack.peek(1).is<double>())
     {
@@ -57,7 +57,7 @@ struct Interpret
     }
   }
 
-  Chunk::code_const_iterator operator()(OpAdd)
+  Code::const_iterator operator()(OpAdd)
   {
     if (stack.peek(0).is<double>() and stack.peek(1).is<double>())
     {
@@ -74,7 +74,7 @@ struct Interpret
       const auto& lhs_str = lhs.as<const ObjString*>()->str;
       const auto& rhs_str = rhs.as<const ObjString*>()->str;
 
-      stack.top() = chunk.memory().make_string(lhs_str + rhs_str);
+      stack.top() = chunk.code.memory().make_string(lhs_str + rhs_str);
       return std::next(current_ip);
     }
     else
@@ -84,15 +84,15 @@ struct Interpret
     }
   }
 
-  Chunk::code_const_iterator operator()(OpConstant op)
+  Code::const_iterator operator()(OpConstant op)
   {
-    const auto value = chunk.get_constant(op.constant);
+    const auto value = chunk.code.get_constant(op.constant);
     stack.push(value);
 
     return std::next(current_ip);
   }
 
-  Chunk::code_const_iterator operator()(OpDefineGlobalVar op)
+  Code::const_iterator operator()(OpDefineGlobalVar op)
   {
     const auto var_value = stack.pop();
     if (vm.globals().size() <= op.global_variable_index.index)
@@ -105,7 +105,7 @@ struct Interpret
     return std::next(current_ip);
   }
 
-  Chunk::code_const_iterator operator()(OpEqual)
+  Code::const_iterator operator()(OpEqual)
   {
     const auto rhs = stack.pop();
     const auto lhs = stack.top();
@@ -114,20 +114,21 @@ struct Interpret
     return std::next(current_ip);
   }
 
-  Chunk::code_const_iterator operator()(OpFalse)
+  Code::const_iterator operator()(OpFalse)
   {
     stack.push(false);
 
     return std::next(current_ip);
   }
 
-  Chunk::code_const_iterator operator()(OpGetGlobalVar op)
+  Code::const_iterator operator()(OpGetGlobalVar op)
   {
     if (op.global_variable_index.index >= vm.globals().size())
     {
-      throw InterpretReturn{InterpretResultStatus::runtime_error,
-                            fmt::format("Undefined variable {}",
-                                        chunk_cxt.get_global_variable(op.global_variable_index))};
+      throw InterpretReturn{
+        InterpretResultStatus::runtime_error,
+        fmt::format("Undefined variable {}",
+                    chunk.code_cxt.get_global_variable(op.global_variable_index))};
     }
 
     stack.push(vm.globals()[op.global_variable_index.index]);
@@ -135,7 +136,7 @@ struct Interpret
     return std::next(current_ip);
   }
 
-  Chunk::code_const_iterator operator()(OpNegate)
+  Code::const_iterator operator()(OpNegate)
   {
     if (not stack.peek(0).is<double>())
     {
@@ -149,57 +150,57 @@ struct Interpret
     }
   }
 
-  Chunk::code_const_iterator operator()(OpNil)
+  Code::const_iterator operator()(OpNil)
   {
     stack.push(Nil{});
 
     return std::next(current_ip);
   }
 
-  Chunk::code_const_iterator operator()(OpNot)
+  Code::const_iterator operator()(OpNot)
   {
     stack.push(stack.pop().falsey());
 
     return std::next(current_ip);
   }
 
-  Chunk::code_const_iterator operator()(OpPop)
+  Code::const_iterator operator()(OpPop)
   {
     [[maybe_unused]] const auto _ = stack.pop();
 
     return std::next(current_ip);
   }
 
-  Chunk::code_const_iterator operator()(OpPrint)
+  Code::const_iterator operator()(OpPrint)
   {
     std::cout << stack.pop() << '\n';
 
     return std::next(current_ip);
   }
 
-  [[noreturn]] Chunk::code_const_iterator operator()(OpReturn)
+  [[noreturn]] Code::const_iterator operator()(OpReturn)
   {
     throw InterpretReturn{InterpretResultStatus::ok};
   }
 
-  Chunk::code_const_iterator operator()(OpTrue)
+  Code::const_iterator operator()(OpTrue)
   {
     stack.push(true);
 
     return std::next(current_ip);
   }
 
-  [[nodiscard]] Chunk::code_const_iterator visit() const
+  [[nodiscard]] Code::const_iterator visit() const
   {
-    return std::visit(Interpret{chunk, chunk_cxt, vm, stack, current_ip}, *current_ip);
+    return std::visit(Interpret{chunk, vm, stack, current_ip}, *current_ip);
   }
 };
 
 template<VM::opt_disassemble Disassemble>
 [[nodiscard]] InterpretResult
-run(Chunk& chunk, ChunkContext& chunk_cxt, VM& vm)
+run(Chunk& chunk, VM& vm)
 {
-  auto current_ip = chunk.code_cbegin();
+  auto current_ip = chunk.code.cbegin();
   auto stack = Stack{};
 
   try
@@ -208,16 +209,16 @@ run(Chunk& chunk, ChunkContext& chunk_cxt, VM& vm)
     {
       if constexpr (Disassemble == VM::opt_disassemble::yes)
       {
-        std::cout << chunk.disassemble(current_ip, chunk_cxt) << '\n';
+        std::cout << disassemble(current_ip, chunk) << '\n';
       }
-      current_ip = Interpret{chunk, chunk_cxt, vm, stack, current_ip}.visit();
+      current_ip = Interpret{chunk, vm, stack, current_ip}.visit();
     }
   }
   catch (const InterpretReturn& r)
   {
     if (r.status != InterpretResultStatus::ok)
     {
-      std::cerr << "line " << chunk.line(current_ip).value_or(0) << ": " << r.message << '\n';
+      std::cerr << "line " << chunk.code.line(current_ip).value_or(0) << ": " << r.message << '\n';
     }
     return {r.status, std::move(stack)};
   }
@@ -236,15 +237,21 @@ VM::VM(VM::opt_disassemble disassemble)
 // ---------------------------------------------------------------------------------------------- //
 
 InterpretResult
-VM::operator()(Chunk& chunk, ChunkContext& chunk_cxt)
+VM::operator()(Chunk&& chunk)
+{
+  return (*this)(chunk);
+}
+
+InterpretResult
+VM::operator()(Chunk& chunk)
 {
   if (disassemble_ == opt_disassemble::yes)
   {
-    return run<opt_disassemble::yes>(chunk, chunk_cxt, *this);
+    return run<opt_disassemble::yes>(chunk, *this);
   }
   else
   {
-    return run<opt_disassemble::no>(chunk, chunk_cxt, *this);
+    return run<opt_disassemble::no>(chunk, *this);
   }
 }
 

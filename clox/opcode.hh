@@ -7,7 +7,7 @@
 
 #include <fmt/core.h>
 
-#include "clox/chunk_fwd.hh"
+#include "clox/code_fwd.hh"
 #include "clox/value.hh"
 
 namespace clox {
@@ -17,10 +17,7 @@ namespace clox {
 template<typename Impl>
 struct OpBinary
 {
-  [[nodiscard]] std::string disassemble(const auto&, const auto&) const
-  {
-    return std::string{Impl::sv};
-  }
+  [[nodiscard]] std::string disassemble(const auto&) const { return std::string{Impl::sv}; }
 
   Value operator()(Value lhs, Value rhs) const
     noexcept(noexcept(std::declval<Impl>()(Value{}, Value{})))
@@ -96,9 +93,9 @@ struct OpConstant
 {
   ConstantIndex constant;
 
-  [[nodiscard]] std::string disassemble(const auto& chunk, const auto&) const
+  [[nodiscard]] std::string disassemble(const auto& chunk) const
   {
-    return fmt::format("OP_CONSTANT {}", chunk.get_constant(constant));
+    return fmt::format("OP_CONSTANT {}", chunk.code.get_constant(constant));
   }
 };
 
@@ -108,10 +105,10 @@ struct OpDefineGlobalVar
 {
   GlobalVariableIndex global_variable_index;
 
-  [[nodiscard]] std::string disassemble(const auto&, const auto& chunk_cxt) const
+  [[nodiscard]] std::string disassemble(const auto& chunk) const
   {
     return fmt::format("OP_DEFINE_GLOBAL_VAR {}",
-                       chunk_cxt.get_global_variable(global_variable_index));
+                       chunk.code_cxt.get_global_variable(global_variable_index));
   }
 };
 
@@ -119,14 +116,14 @@ struct OpDefineGlobalVar
 
 struct OpEqual
 {
-  [[nodiscard]] std::string disassemble(const auto&, const auto&) const { return "OP_EQUAL"; }
+  [[nodiscard]] std::string disassemble(const auto&) const { return "OP_EQUAL"; }
 };
 
 // ---------------------------------------------------------------------------------------------- //
 
 struct OpFalse
 {
-  [[nodiscard]] std::string disassemble(const auto&, const auto&) const { return "OP_FALSE"; }
+  [[nodiscard]] std::string disassemble(const auto&) const { return "OP_FALSE"; }
 };
 
 // ---------------------------------------------------------------------------------------------- //
@@ -135,10 +132,10 @@ struct OpGetGlobalVar
 {
   GlobalVariableIndex global_variable_index;
 
-  [[nodiscard]] std::string disassemble(const auto&, const auto& chunk_cxt) const
+  [[nodiscard]] std::string disassemble(const auto& chunk) const
   {
     return fmt::format("OP_GET_GLOBAL_VAR {}",
-                       chunk_cxt.get_global_variable(global_variable_index));
+                       chunk.code_cxt.get_global_variable(global_variable_index));
   }
 };
 
@@ -146,49 +143,49 @@ struct OpGetGlobalVar
 
 struct OpNegate
 {
-  [[nodiscard]] std::string disassemble(const auto&, const auto&) const { return "OP_NEGATE"; }
+  [[nodiscard]] std::string disassemble(const auto&) const { return "OP_NEGATE"; }
 };
 
 // ---------------------------------------------------------------------------------------------- //
 
 struct OpNil
 {
-  [[nodiscard]] std::string disassemble(const auto&, const auto&) const { return "OP_NIL"; }
+  [[nodiscard]] std::string disassemble(const auto&) const { return "OP_NIL"; }
 };
 
 // ---------------------------------------------------------------------------------------------- //
 
 struct OpNot
 {
-  [[nodiscard]] std::string disassemble(const auto&, const auto&) const { return "OP_NOT"; }
+  [[nodiscard]] std::string disassemble(const auto&) const { return "OP_NOT"; }
 };
 
 // ---------------------------------------------------------------------------------------------- //
 
 struct OpPop
 {
-  [[nodiscard]] std::string disassemble(const auto&, const auto&) const { return "OP_POP"; }
+  [[nodiscard]] std::string disassemble(const auto&) const { return "OP_POP"; }
 };
 
 // ---------------------------------------------------------------------------------------------- //
 
 struct OpPrint
 {
-  [[nodiscard]] std::string disassemble(const auto&, const auto&) const { return "OP_PRINT"; }
+  [[nodiscard]] std::string disassemble(const auto&) const { return "OP_PRINT"; }
 };
 
 // ---------------------------------------------------------------------------------------------- //
 
 struct OpReturn
 {
-  [[nodiscard]] std::string disassemble(const auto&, const auto&) const { return "OP_RETURN"; }
+  [[nodiscard]] std::string disassemble(const auto&) const { return "OP_RETURN"; }
 };
 
 // ---------------------------------------------------------------------------------------------- //
 
 struct OpTrue
 {
-  [[nodiscard]] std::string disassemble(const auto&, const auto&) const { return "OP_TRUE"; }
+  [[nodiscard]] std::string disassemble(const auto&) const { return "OP_TRUE"; }
 };
 
 // ---------------------------------------------------------------------------------------------- //
@@ -215,9 +212,9 @@ using Opcode = std::variant<OpAdd,
 // ---------------------------------------------------------------------------------------------- //
 
 [[nodiscard]] std::string
-disassemble_opcode(const Opcode& opcode, const auto& chunk, const auto& chunk_cxt)
+disassemble_opcode(const Opcode& opcode, const auto& chunk)
 {
-  return std::visit([&](auto&& arg) { return arg.disassemble(chunk, chunk_cxt); }, opcode);
+  return std::visit([&](auto&& arg) { return arg.disassemble(chunk); }, opcode);
 }
 
 // ---------------------------------------------------------------------------------------------- //

@@ -6,6 +6,7 @@
 #include <magic_enum.hpp>
 
 #include "clox/chunk.hh"
+#include "clox/code.hh"
 #include "clox/expected.hh"
 #include "clox/scanner.hh"
 
@@ -18,7 +19,7 @@ class Compile;
 
 namespace detail {
 
-using ParseFn = void (Compile::*)(Chunk&, ChunkContext&);
+using ParseFn = void (Compile::*)(Chunk&);
 
 enum class Precedence
 {
@@ -80,10 +81,11 @@ make_rules_impl(ParserRules& rules, T x, Ts... xs)
 
 class Compile
 {
+
 public:
   explicit Compile(Scanner&&);
 
-  Expected<Chunk, std::string> operator()(ChunkContext&);
+  Expected<Code, std::string> operator()(CodeContext&);
 
 private:
   void advance();
@@ -92,26 +94,26 @@ private:
   [[nodiscard]] bool check(TokenType) const noexcept;
   void synchronize();
 
-  void expression(Chunk&, ChunkContext&);
-  void binary(Chunk&, ChunkContext&);
-  void grouping(Chunk&, ChunkContext&);
-  void literal(Chunk&, ChunkContext&);
-  void number(Chunk&, ChunkContext&);
-  void unary(Chunk&, ChunkContext&);
-  void string(Chunk&, ChunkContext&);
-  void declaration(Chunk&, ChunkContext&);
-  void statement(Chunk&, ChunkContext&);
-  void variable(Chunk&, ChunkContext&);
-  void named_variable(Chunk&, ChunkContext&, Token);
+  void expression(Chunk&);
+  void binary(Chunk&);
+  void grouping(Chunk&);
+  void literal(Chunk&);
+  void number(Chunk&);
+  void unary(Chunk&);
+  void string(Chunk&);
+  void declaration(Chunk&);
+  void statement(Chunk&);
+  void variable(Chunk&);
+  void named_variable(Chunk&, Token);
 
-  void print_statement(Chunk&, ChunkContext&);
-  void expression_statement(Chunk&, ChunkContext&);
+  void print_statement(Chunk&);
+  void expression_statement(Chunk&);
 
-  void var_declaration(Chunk&, ChunkContext&);
-  GlobalVariableIndex parse_variable(ChunkContext&, const std::string& error_msg);
+  void var_declaration(Chunk&);
+  GlobalVariableIndex parse_variable(Chunk&, const std::string& error_msg);
 
   [[nodiscard]] static constexpr const detail::ParseRule& get_rule(TokenType);
-  void parse_precedence(Chunk&, ChunkContext&, detail::Precedence);
+  void parse_precedence(Chunk&, detail::Precedence);
 
   void error_at_current(const std::string&);
   void error_at_previous(const std::string&);
