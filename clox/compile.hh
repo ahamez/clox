@@ -18,7 +18,7 @@ class Compile;
 
 namespace detail {
 
-using ParseFn = void (Compile::*)(Chunk&);
+using ParseFn = void (Compile::*)(Chunk&, ChunkContext&);
 
 enum class Precedence
 {
@@ -83,22 +83,35 @@ class Compile
 public:
   explicit Compile(Scanner&&);
 
-  Expected<Chunk, std::string> operator()();
+  Expected<Chunk, std::string> operator()(ChunkContext&);
 
 private:
   void advance();
-  void consume(TokenType, const std::string&);
+  void consume(TokenType, const std::string& error_msg);
+  [[nodiscard]] bool match(TokenType);
+  [[nodiscard]] bool check(TokenType) const noexcept;
+  void synchronize();
 
-  void expression(Chunk&);
-  void binary(Chunk&);
-  void grouping(Chunk&);
-  void literal(Chunk&);
-  void number(Chunk&);
-  void unary(Chunk&);
-  void string(Chunk&);
+  void expression(Chunk&, ChunkContext&);
+  void binary(Chunk&, ChunkContext&);
+  void grouping(Chunk&, ChunkContext&);
+  void literal(Chunk&, ChunkContext&);
+  void number(Chunk&, ChunkContext&);
+  void unary(Chunk&, ChunkContext&);
+  void string(Chunk&, ChunkContext&);
+  void declaration(Chunk&, ChunkContext&);
+  void statement(Chunk&, ChunkContext&);
+  void variable(Chunk&, ChunkContext&);
+  void named_variable(Chunk&, ChunkContext&, Token);
+
+  void print_statement(Chunk&, ChunkContext&);
+  void expression_statement(Chunk&, ChunkContext&);
+
+  void var_declaration(Chunk&, ChunkContext&);
+  GlobalVariableIndex parse_variable(ChunkContext&, const std::string& error_msg);
 
   [[nodiscard]] static constexpr const detail::ParseRule& get_rule(TokenType);
-  void parse_precedence(Chunk&, detail::Precedence);
+  void parse_precedence(Chunk&, ChunkContext&, detail::Precedence);
 
   void error_at_current(const std::string&);
   void error_at_previous(const std::string&);
@@ -133,7 +146,7 @@ private:
                Rule{TokenType::greater_equal, {nullptr, &Compile::binary, Precedence::comparison}},
                Rule{TokenType::less, {nullptr, &Compile::binary, Precedence::comparison}},
                Rule{TokenType::less_equal, {nullptr, &Compile::binary, Precedence::comparison}},
-               Rule{TokenType::identifier, {nullptr, nullptr, Precedence::none}},
+               Rule{TokenType::identifier, {&Compile::variable, nullptr, Precedence::none}},
                Rule{TokenType::string, {&Compile::string, nullptr, Precedence::none}},
                Rule{TokenType::number, {&Compile::number, nullptr, Precedence::none}},
                Rule{TokenType::and_, {nullptr, nullptr, Precedence::none}},

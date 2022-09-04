@@ -28,17 +28,12 @@ read_file(const std::string& file_path)
 }
 
 void
-interpret(const std::string& content, clox::VM::opt_disassemble opt_disassemble)
+interpret(const std::string& content, clox::VM& vm, clox::ChunkContext& chunk_context)
 {
   using namespace clox;
-  if (auto chunk = Compile{Scanner{content}}(); chunk)
+  if (auto chunk = Compile{Scanner{content}}(chunk_context); chunk)
   {
-    const auto result = VM{opt_disassemble}(chunk.get());
-    std::cout << "Status: " << magic_enum::enum_name(result.status) << '\n';
-    if (result.stack.size() > 0)
-    {
-      std::cout << "Result: " << result.stack.top() << '\n';
-    }
+    const auto result = vm(chunk.get(), chunk_context);
   }
   else
   {
@@ -47,12 +42,24 @@ interpret(const std::string& content, clox::VM::opt_disassemble opt_disassemble)
 }
 
 void
+interpret(const std::string& content,
+          clox::VM::opt_disassemble disassemble = clox::VM::opt_disassemble::no)
+{
+  auto vm = clox::VM{disassemble};
+  auto chunk_context = clox::ChunkContext{};
+  interpret(content, vm, chunk_context);
+}
+
+void
 repl()
 {
+  auto vm = clox::VM{clox::VM::opt_disassemble::no};
+  auto chunk_context = clox::ChunkContext{};
+
   std::cout << "> ";
   for (auto line = std::string{}; std::getline(std::cin, line);)
   {
-    interpret(line, clox::VM::opt_disassemble::no);
+    interpret(line, vm, chunk_context);
     std::cout << "> ";
   }
   std::cout << "Good bye!\n";

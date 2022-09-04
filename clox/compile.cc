@@ -106,16 +106,91 @@ Compile::advance()
   }
 }
 
-// ---------------------------------------------------------------------------------------------- //
-
 void
-Compile::expression(Chunk& chunk)
+Compile::consume(TokenType type, const std::string& msg)
 {
-  parse_precedence(chunk, Precedence::assignement);
+  if (current_.type == type)
+  {
+    advance();
+    return;
+  }
+
+  error_at_current(msg);
+}
+
+bool
+Compile::match(TokenType tokenType)
+{
+  if (not check(tokenType))
+  {
+    return false;
+  }
+  else
+  {
+    advance();
+    return true;
+  }
+}
+bool
+Compile::check(TokenType token_type) const noexcept
+{
+  return current_.type == token_type;
 }
 
 void
-Compile::literal(Chunk& chunk)
+Compile::synchronize()
+{
+  panic_mode_ = false;
+
+  while (current_.type != TokenType::eof)
+  {
+    if (previous_.type == TokenType::semicolon)
+    {
+      return;
+    }
+    else
+    {
+      // NOLINTBEGIN(bugprone-branch-clone)
+      switch (current_.type)
+      {
+        case TokenType::class_:
+          [[fallthrough]];
+        case TokenType::fun:
+          [[fallthrough]];
+        case TokenType::var:
+          [[fallthrough]];
+        case TokenType::for_:
+          [[fallthrough]];
+        case TokenType::if_:
+          [[fallthrough]];
+        case TokenType::while_:
+          [[fallthrough]];
+        case TokenType::print:
+          [[fallthrough]];
+        case TokenType::return_:
+          return;
+
+        default:
+          // Do nothing
+          ;
+      }
+      // NOLINTEND(bugprone-branch-clone)
+    }
+
+    advance();
+  }
+}
+
+// ---------------------------------------------------------------------------------------------- //
+
+void
+Compile::expression(Chunk& chunk, ChunkContext& chunk_cxt)
+{
+  parse_precedence(chunk, chunk_cxt, Precedence::assignement);
+}
+
+void
+Compile::literal(Chunk& chunk, ChunkContext&)
 {
   switch (previous_.type)
   {
@@ -134,26 +209,26 @@ Compile::literal(Chunk& chunk)
 }
 
 void
-Compile::number(Chunk& chunk)
+Compile::number(Chunk& chunk, ChunkContext&)
 {
   const auto value = std::stod(previous_.token.data());
-  emit(chunk, previous_.line, OpConstant{chunk.add_value(value)});
+  emit(chunk, previous_.line, OpConstant{chunk.add_constant(value)});
 }
 
 void
-Compile::grouping(Chunk& chunk)
+Compile::grouping(Chunk& chunk, ChunkContext& chunk_cxt)
 {
-  expression(chunk);
+  expression(chunk, chunk_cxt);
   consume(TokenType::right_paren, "Expect ')' after expression.");
 }
 
 void
-Compile::unary(Chunk& chunk)
+Compile::unary(Chunk& chunk, ChunkContext& chunk_cxt)
 {
   const auto operator_type = previous_.type;
 
   // Compile the operand.
-  parse_precedence(chunk, Precedence::unary);
+  parse_precedence(chunk, chunk_cxt, Precedence::unary);
 
   switch (operator_type)
   {
@@ -169,11 +244,11 @@ Compile::unary(Chunk& chunk)
 }
 
 void
-Compile::binary(Chunk& chunk)
+Compile::binary(Chunk& chunk, ChunkContext& chunk_cxt)
 {
   const auto operator_type = previous_.type;
   const auto rule = get_rule(operator_type);
-  parse_precedence(chunk, rule.precedence);
+  parse_precedence(chunk, chunk_cxt, rule.precedence);
 
   switch (operator_type)
   {
@@ -213,11 +288,105 @@ Compile::binary(Chunk& chunk)
 }
 
 void
-Compile::string(Chunk& chunk)
+Compile::string(Chunk& chunk, ChunkContext&)
 {
   const auto* obj = chunk.memory().make_string(std::string{previous_.token});
-  emit(chunk, previous_.line, OpConstant{chunk.add_value(obj)});
+  emit(chunk, previous_.line, OpConstant{chunk.add_constant(obj)});
 }
+
+void
+Compile::declaration(Chunk& chunk, ChunkContext& chunk_cxt)
+{
+  if (match(TokenType::var))
+  {
+    var_declaration(chunk, chunk_cxt);
+  }
+  else
+  {
+    statement(chunk, chunk_cxt);
+  }
+
+  if (panic_mode_)
+  {
+    synchronize();
+  }
+}
+
+void
+Compile::statement(Chunk& chunk, ChunkContext& chunk_cxt)
+{
+  if (match(TokenType::print))
+  {
+    print_statement(chunk, chunk_cxt);
+  }
+  else
+  {
+    expression_statement(chunk, chunk_cxt);
+  }
+}
+
+void
+Compile::variable(clox::Chunk& chunk, ChunkContext& chunk_cxt)
+{
+  named_variable(chunk, chunk_cxt, previous_);
+}
+
+void
+Compile::named_variable(Chunk& chunk, ChunkContext& chunk_cxt, Token token)
+{
+  const auto var_name = std::string{token.token};
+  const auto index = chunk_cxt.maybe_add_global_variable(var_name);
+
+  emit(chunk, previous_.line, OpGetGlobalVar{index});
+}
+
+// ---------------------------------------------------------------------------------------------- //
+
+void
+Compile::print_statement(Chunk& chunk, ChunkContext& chunk_cxt)
+{
+  expression(chunk, chunk_cxt);
+  consume(TokenType::semicolon, "Expect ';' after expression.");
+  emit(chunk, previous_.line, OpPrint{});
+}
+
+void
+Compile::expression_statement(Chunk& chunk, ChunkContext& chunk_cxt)
+{
+  expression(chunk, chunk_cxt);
+  consume(TokenType::semicolon, "Expect ';' after expression.");
+  emit(chunk, previous_.line, OpPop{});
+}
+
+void
+Compile::var_declaration(Chunk& chunk, ChunkContext& chunk_cxt)
+{
+  const auto var_index = parse_variable(chunk_cxt, "Expect variable name");
+
+  if (match(TokenType::equal))
+  {
+    expression(chunk, chunk_cxt);
+  }
+  else
+  {
+    emit(chunk, previous_.line, OpNil{});
+  }
+
+  consume(TokenType::semicolon, "Expect ';' after variable declaration");
+
+  emit(chunk, previous_.line, OpDefineGlobalVar{var_index});
+}
+
+GlobalVariableIndex
+Compile::parse_variable(ChunkContext& chunk_cxt, const std::string& error_msg)
+{
+  consume(TokenType::identifier, error_msg);
+  const auto var_name = std::string{previous_.token};
+
+  return chunk_cxt.maybe_add_global_variable(var_name);
+}
+
+// ---------------------------------------------------------------------------------------------- //
 
 constexpr const ParseRule&
 Compile::get_rule(TokenType token_type)
@@ -226,24 +395,8 @@ Compile::get_rule(TokenType token_type)
   return parser_rules_[magic_enum::enum_index(token_type).value()];
 }
 
-// ---------------------------------------------------------------------------------------------- //
-
 void
-Compile::consume(TokenType type, const std::string& msg)
-{
-  if (current_.type == type)
-  {
-    advance();
-    return;
-  }
-
-  error_at_current(msg);
-}
-
-// ---------------------------------------------------------------------------------------------- //
-
-void
-Compile::parse_precedence(Chunk& chunk, Precedence precedence)
+Compile::parse_precedence(Chunk& chunk, ChunkContext& chunk_cxt, Precedence precedence)
 {
   advance();
 
@@ -253,26 +406,30 @@ Compile::parse_precedence(Chunk& chunk, Precedence precedence)
     error_at_previous("Expect expression");
     return;
   }
-  std::invoke(prefix_rule, this, chunk);
+  std::invoke(prefix_rule, this, chunk, chunk_cxt);
 
   while (precedence <= get_rule(current_.type).precedence)
   {
     advance();
     const auto& infix_rule = get_rule(previous_.type).infix;
-    std::invoke(infix_rule, this, chunk);
+    std::invoke(infix_rule, this, chunk, chunk_cxt);
   }
 }
 
 // ---------------------------------------------------------------------------------------------- //
 
 Expected<clox::Chunk, std::string>
-Compile::operator()()
+Compile::operator()(ChunkContext& chunk_cxt)
 {
   auto chunk = Chunk{};
 
   advance();
-  expression(chunk);
-  consume(TokenType::eof, "Expected end of expression");
+
+  while (not match(TokenType::eof))
+  {
+    declaration(chunk, chunk_cxt);
+  }
+
   emit(chunk, previous_.line, OpReturn{});
 
   if (had_error_)

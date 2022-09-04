@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cassert>
 
 #include <fmt/core.h>
@@ -8,25 +9,23 @@ namespace clox {
 
 // ---------------------------------------------------------------------------------------------- //
 
-ConstantRef
+ConstantIndex
 Chunk::add_constant(Value v)
 {
   const auto it = constants_.insert(constants_.end(), v);
-  return {.offset = static_cast<std::uint16_t>(it - cbegin(constants_))};
+  return {.index = static_cast<std::uint16_t>(it - cbegin(constants_))};
 }
 
-// ---------------------------------------------------------------------------------------------- //
-
 Value
-Chunk::get_constant(ConstantRef ref) const
+Chunk::get_constant(ConstantIndex ref) const
 {
-  return constants_[ref.offset];
+  return constants_[ref.index];
 }
 
 // ---------------------------------------------------------------------------------------------- //
 
 std::string
-Chunk::disassemble(Chunk::code_const_iterator current_opcode) const
+Chunk::disassemble(Chunk::code_const_iterator current_opcode, const ChunkContext& chunk_cxt) const
 {
   assert(code_.size() == lines_.size());
 
@@ -36,7 +35,7 @@ Chunk::disassemble(Chunk::code_const_iterator current_opcode) const
   return fmt::format("{:04d} | {:04d} | {}",
                      offset,
                      lines_cit->value_or(0),
-                     disassemble_opcode(*current_opcode, *this));
+                     disassemble_opcode(*current_opcode, *this, chunk_cxt));
 }
 
 // ---------------------------------------------------------------------------------------------- //
@@ -69,19 +68,6 @@ Memory&
 Chunk::memory() noexcept
 {
   return memory_;
-}
-
-// ---------------------------------------------------------------------------------------------- //
-
-std::ostream&
-operator<<(std::ostream& os, const Chunk& chunk)
-{
-  for (auto code_cit = cbegin(chunk.code_); code_cit != cend(chunk.code_); ++code_cit)
-  {
-    os << chunk.disassemble(code_cit) << '\n';
-  }
-
-  return os;
 }
 
 // ---------------------------------------------------------------------------------------------- //

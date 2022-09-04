@@ -9,6 +9,8 @@
 namespace clox {
 namespace /* anonymous */ {
 
+constexpr auto globals_reserve = 1024;
+
 // ---------------------------------------------------------------------------------------------- //
 
 struct InterpretReturn : public std::exception
@@ -33,6 +35,8 @@ struct InterpretReturn : public std::exception
 struct Interpret
 {
   Chunk& chunk;
+  ChunkContext& chunk_cxt;
+  VM& vm;
   Stack& stack;
   const Chunk::code_const_iterator current_ip;
 
@@ -88,6 +92,19 @@ struct Interpret
     return std::next(current_ip);
   }
 
+  Chunk::code_const_iterator operator()(OpDefineGlobalVar op)
+  {
+    const auto var_value = stack.pop();
+    if (vm.globals().size() <= op.global_variable_index.index)
+    {
+      vm.globals().resize(op.global_variable_index.index + 1);
+    }
+
+    vm.globals()[op.global_variable_index.index] = var_value;
+
+    return std::next(current_ip);
+  }
+
   Chunk::code_const_iterator operator()(OpEqual)
   {
     const auto rhs = stack.pop();
@@ -100,6 +117,20 @@ struct Interpret
   Chunk::code_const_iterator operator()(OpFalse)
   {
     stack.push(false);
+
+    return std::next(current_ip);
+  }
+
+  Chunk::code_const_iterator operator()(OpGetGlobalVar op)
+  {
+    if (op.global_variable_index.index >= vm.globals().size())
+    {
+      throw InterpretReturn{InterpretResultStatus::runtime_error,
+                            fmt::format("Undefined variable {}",
+                                        chunk_cxt.get_global_variable(op.global_variable_index))};
+    }
+
+    stack.push(vm.globals()[op.global_variable_index.index]);
 
     return std::next(current_ip);
   }
@@ -132,6 +163,20 @@ struct Interpret
     return std::next(current_ip);
   }
 
+  Chunk::code_const_iterator operator()(OpPop)
+  {
+    [[maybe_unused]] const auto _ = stack.pop();
+
+    return std::next(current_ip);
+  }
+
+  Chunk::code_const_iterator operator()(OpPrint)
+  {
+    std::cout << stack.pop() << '\n';
+
+    return std::next(current_ip);
+  }
+
   [[noreturn]] Chunk::code_const_iterator operator()(OpReturn)
   {
     throw InterpretReturn{InterpretResultStatus::ok};
@@ -146,13 +191,13 @@ struct Interpret
 
   [[nodiscard]] Chunk::code_const_iterator visit() const
   {
-    return std::visit(Interpret{chunk, stack, current_ip}, *current_ip);
+    return std::visit(Interpret{chunk, chunk_cxt, vm, stack, current_ip}, *current_ip);
   }
 };
 
 template<VM::opt_disassemble Disassemble>
 [[nodiscard]] InterpretResult
-run(Chunk& chunk)
+run(Chunk& chunk, ChunkContext& chunk_cxt, VM& vm)
 {
   auto current_ip = chunk.code_cbegin();
   auto stack = Stack{};
@@ -163,9 +208,9 @@ run(Chunk& chunk)
     {
       if constexpr (Disassemble == VM::opt_disassemble::yes)
       {
-        std::cout << chunk.disassemble(current_ip) << '\n';
+        std::cout << chunk.disassemble(current_ip, chunk_cxt) << '\n';
       }
-      current_ip = Interpret{chunk, stack, current_ip}.visit();
+      current_ip = Interpret{chunk, chunk_cxt, vm, stack, current_ip}.visit();
     }
   }
   catch (const InterpretReturn& r)
@@ -184,20 +229,22 @@ run(Chunk& chunk)
 
 VM::VM(VM::opt_disassemble disassemble)
   : disassemble_{disassemble}
-{}
+{
+  globals_.reserve(globals_reserve);
+}
 
 // ---------------------------------------------------------------------------------------------- //
 
 InterpretResult
-VM::operator()(Chunk& chunk) const
+VM::operator()(Chunk& chunk, ChunkContext& chunk_cxt)
 {
   if (disassemble_ == opt_disassemble::yes)
   {
-    return run<opt_disassemble::yes>(chunk);
+    return run<opt_disassemble::yes>(chunk, chunk_cxt, *this);
   }
   else
   {
-    return run<opt_disassemble::no>(chunk);
+    return run<opt_disassemble::no>(chunk, chunk_cxt, *this);
   }
 }
 

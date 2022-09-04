@@ -2,6 +2,8 @@ add_library(
   clox
   OBJECT
   chunk.cc
+  chunk_context.cc
+  chunk_context.hh
   chunk_fwd.hh
   compile.cc
   compile.hh
