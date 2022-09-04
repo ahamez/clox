@@ -7,8 +7,6 @@
 
 #include "clox/compile.hh"
 
-// NOLINTBEGIN(readability-make-member-function-const)
-
 namespace clox {
 
 using namespace clox::detail;
@@ -190,7 +188,7 @@ Compile::expression(Chunk& cxt)
 }
 
 void
-Compile::literal(Chunk& cxt)
+Compile::literal(Chunk& cxt) // NOLINT(readability-make-member-function-const)
 {
   switch (previous_.type)
   {
@@ -209,7 +207,7 @@ Compile::literal(Chunk& cxt)
 }
 
 void
-Compile::number(Chunk& cxt)
+Compile::number(Chunk& cxt) // NOLINT(readability-make-member-function-const)
 {
   const auto value = std::stod(previous_.token.data());
   emit(cxt, previous_.line, OpConstant{cxt.code.add_constant(value)});
@@ -288,7 +286,7 @@ Compile::binary(Chunk& cxt)
 }
 
 void
-Compile::string(Chunk& cxt)
+Compile::string(Chunk& cxt) // NOLINT(readability-make-member-function-const)
 {
   const auto* obj = cxt.code.memory().make_string(std::string{previous_.token});
   emit(cxt, previous_.line, OpConstant{cxt.code.add_constant(obj)});
@@ -332,7 +330,7 @@ Compile::variable(clox::Chunk& cxt)
 }
 
 void
-Compile::named_variable(Chunk& cxt, Token token)
+Compile::named_variable(Chunk& cxt, Token token) // NOLINT(readability-make-member-function-const)
 {
   const auto var_name = std::string{token.token};
   const auto index = cxt.code_cxt.maybe_add_global_variable(var_name);
@@ -446,5 +444,3 @@ Compile::operator()(CodeContext& chunk_cxt)
 // ---------------------------------------------------------------------------------------------- //
 
 } // namespace clox
-
-// NOLINTEND(readability-make-member-function-const)
