@@ -19,8 +19,8 @@ enum class InterpretResultStatus
 
 struct InterpretResult
 {
-  InterpretResultStatus status;
-  Stack stack;
+  InterpretResultStatus status{};
+  Stack stack{};
 };
 
 // ---------------------------------------------------------------------------------------------- //
@@ -34,12 +34,12 @@ public:
     no
   };
 
-  VM(opt_disassemble disassemble = opt_disassemble::no);
+  explicit VM(opt_disassemble disassemble = opt_disassemble::no);
 
   [[nodiscard]] InterpretResult operator()(Chunk&);
   [[nodiscard]] InterpretResult operator()(Chunk&&);
 
-  auto& globals() noexcept { return globals_; }
+  [[nodiscard]] auto& globals() noexcept { return globals_; }
 
 private:
   opt_disassemble disassemble_{opt_disassemble::no};
