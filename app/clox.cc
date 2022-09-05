@@ -41,9 +41,7 @@ interpret(const std::string& content, clox::VM& vm, std::unique_ptr<clox::Memory
   }
   else
   {
-    std::cerr << maybe_chunk.error() << '\n';
-    // TODO even if compilation fails, we want to get back memory in the REPL loop.
-    return nullptr;
+    return std::move(maybe_chunk.error());
   }
 }
 

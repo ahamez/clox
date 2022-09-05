@@ -80,11 +80,10 @@ make_rules_impl(ParserRules& rules, T x, Ts... xs)
 
 class Compile
 {
-
 public:
   explicit Compile(Scanner&&);
 
-  Expected<Chunk, std::string> operator()(std::unique_ptr<Memory>&&);
+  Expected<Chunk, std::unique_ptr<Memory>> operator()(std::unique_ptr<Memory>&&);
 
 private:
   void advance();

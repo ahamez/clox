@@ -417,7 +417,7 @@ Compile::parse_precedence(Chunk& chunk, Precedence precedence)
 
 // ---------------------------------------------------------------------------------------------- //
 
-Expected<clox::Chunk, std::string>
+Expected<clox::Chunk, std::unique_ptr<Memory>>
 Compile::operator()(std::unique_ptr<Memory>&& memory)
 {
   auto chunk = Chunk{std::make_unique<Code>(), std::move(memory)};
@@ -433,11 +433,11 @@ Compile::operator()(std::unique_ptr<Memory>&& memory)
 
   if (had_error_)
   {
-    return Expected<clox::Chunk, std::string>::error("Error");
+    return Expected<clox::Chunk, std::unique_ptr<Memory>>::error(std::move(chunk.memory));
   }
   else
   {
-    return Expected<clox::Chunk, std::string>::ok(std::move(chunk));
+    return Expected<clox::Chunk, std::unique_ptr<Memory>>::ok(std::move(chunk));
   }
 }
 
