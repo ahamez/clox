@@ -15,7 +15,6 @@ struct ConstantIndex : type_safe::strong_typedef<ConstantIndex, std::uint16_t>
 
 // ---------------------------------------------------------------------------------------------- //
 
-// using GlobalVariableIndex = std::uint16_t;
 struct GlobalVariableIndex
   : type_safe::strong_typedef<GlobalVariableIndex, std::uint16_t>
   , type_safe::strong_typedef_op::equality_comparison<GlobalVariableIndex>
@@ -27,8 +26,16 @@ struct GlobalVariableIndex
 
 // ---------------------------------------------------------------------------------------------- //
 
-class Code;
+} // namespace clox
 
 // ---------------------------------------------------------------------------------------------- //
 
-} // namespace clox
+namespace std {
+
+template<>
+struct hash<clox::GlobalVariableIndex> : type_safe::hashable<clox::GlobalVariableIndex>
+{};
+
+} // namespace std
+
+// ---------------------------------------------------------------------------------------------- //

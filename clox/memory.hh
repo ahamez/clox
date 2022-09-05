@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "clox/code_fwd.hh"
+#include "clox/index.hh"
 #include "clox/obj_string.hh"
 
 namespace clox {

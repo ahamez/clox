@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "clox/code_fwd.hh"
+#include "clox/index.hh"
 #include "clox/opcode.hh"
 #include "clox/value.hh"
 
