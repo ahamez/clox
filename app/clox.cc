@@ -1,5 +1,5 @@
 #include <iostream>
-#include <string>
+#include <memory>
 
 #include "clox/compile.hh"
 #include "clox/scanner.hh"
@@ -27,38 +27,44 @@ read_file(const std::string& file_path)
   return file_content;
 }
 
-void
-interpret(const std::string& content, clox::VM& vm, clox::CodeContext& code_context)
+std::unique_ptr<clox::Memory>
+interpret(const std::string& content, clox::VM& vm, std::unique_ptr<clox::Memory>&& memory)
 {
   using namespace clox;
-  if (auto code = Compile{Scanner{content}}(code_context); code)
+
+  auto maybe_chunk = Compile{Scanner{content}}(std::move(memory));
+
+  if (maybe_chunk)
   {
-    const auto result = vm(Chunk{code.get(), code_context});
+    auto result = vm(std::move(maybe_chunk.get()));
+    return std::move(result.memory);
   }
   else
   {
-    std::cerr << code.error() << '\n';
+    std::cerr << maybe_chunk.error() << '\n';
+    // TODO even if compilation fails, we want to get back memory in the REPL loop.
+    return nullptr;
   }
 }
 
-void
+std::unique_ptr<clox::Memory>
 interpret(const std::string& content)
 {
   auto vm = clox::VM{clox::VM::opt_disassemble::yes};
-  auto code_context = clox::CodeContext{};
-  interpret(content, vm, code_context);
+  auto code_context = std::make_unique<clox::Memory>();
+  return interpret(content, vm, std::move(code_context));
 }
 
 void
 repl()
 {
   auto vm = clox::VM{clox::VM::opt_disassemble::no};
-  auto chunk_context = clox::CodeContext{};
+  auto memory = std::make_unique<clox::Memory>();
 
   std::cout << "> ";
   for (auto line = std::string{}; std::getline(std::cin, line);)
   {
-    interpret(line, vm, chunk_context);
+    memory = interpret(line, vm, std::move(memory));
     std::cout << "> ";
   }
   std::cout << "Good bye!\n";

@@ -1,8 +1,6 @@
-#include <algorithm>
 #include <exception>
 #include <iostream>
 #include <iterator>
-#include <vector>
 
 #include "clox/disassemble.hh"
 #include "clox/vm.hh"
@@ -74,7 +72,7 @@ struct Interpret
       const auto& lhs_str = lhs.as<const ObjString*>()->str;
       const auto& rhs_str = rhs.as<const ObjString*>()->str;
 
-      stack.top() = chunk.code.memory().make_string(lhs_str + rhs_str);
+      stack.top() = chunk.memory->make_string(lhs_str + rhs_str);
       return std::next(current_ip);
     }
     else
@@ -86,7 +84,7 @@ struct Interpret
 
   Code::const_iterator operator()(OpConstant op)
   {
-    const auto value = chunk.code.get_constant(op.constant);
+    const auto value = chunk.code->get_constant(op.constant);
     stack.push(value);
 
     return std::next(current_ip);
@@ -131,7 +129,7 @@ struct Interpret
       throw InterpretReturn{
         InterpretResultStatus::runtime_error,
         fmt::format("Undefined variable {}",
-                    chunk.code_cxt.get_global_variable(op.global_variable_index))};
+                    chunk.memory->get_global_variable(op.global_variable_index))};
     }
 
     stack.push(vm.globals()[static_cast<std::uint16_t>(op.global_variable_index)]);
@@ -203,7 +201,7 @@ template<VM::opt_disassemble Disassemble>
 [[nodiscard]] InterpretResult
 run(Chunk& chunk, VM& vm)
 {
-  auto current_ip = chunk.code.cbegin();
+  auto current_ip = chunk.code->cbegin();
   auto stack = Stack{};
 
   try
@@ -221,9 +219,9 @@ run(Chunk& chunk, VM& vm)
   {
     if (r.status != InterpretResultStatus::ok)
     {
-      std::cerr << "line " << chunk.code.line(current_ip).value_or(0) << ": " << r.message << '\n';
+      std::cerr << "line " << chunk.code->line(current_ip).value_or(0) << ": " << r.message << '\n';
     }
-    return {r.status, std::move(stack)};
+    return {r.status, std::move(stack), std::move(chunk.memory)};
   }
 }
 

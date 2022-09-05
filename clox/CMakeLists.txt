@@ -3,8 +3,6 @@ add_library(
   OBJECT
   chunk.hh
   code.cc
-  code_context.cc
-  code_context.hh
   code_fwd.hh
   compile.cc
   compile.hh

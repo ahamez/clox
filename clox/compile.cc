@@ -6,6 +6,7 @@
 #include <magic_enum.hpp>
 
 #include "clox/compile.hh"
+#include "clox/memory.hh"
 
 namespace clox {
 
@@ -19,14 +20,14 @@ template<typename Opcode>
 void
 emit(Chunk& chunk, std::size_t line, Opcode&& op)
 {
-  chunk.code.add_opcode(std::forward<Opcode>(op), line);
+  chunk.code->add_opcode(std::forward<Opcode>(op), line);
 }
 
 template<typename Opcode, typename... Opcodes>
 void
 emit(Chunk& chunk, std::size_t line, Opcode&& op, Opcodes&&... ops)
 {
-  chunk.code.add_opcode(std::forward<Opcode>(op), line);
+  chunk.code->add_opcode(std::forward<Opcode>(op), line);
   emit(chunk, line, std::forward<Opcodes>(ops)...);
 }
 
@@ -210,7 +211,7 @@ void
 Compile::number(Chunk& chunk) // NOLINT(readability-make-member-function-const)
 {
   const auto value = std::stod(previous_.token.data());
-  emit(chunk, previous_.line, OpConstant{chunk.code.add_constant(value)});
+  emit(chunk, previous_.line, OpConstant{chunk.code->add_constant(value)});
 }
 
 void
@@ -288,8 +289,8 @@ Compile::binary(Chunk& chunk)
 void
 Compile::string(Chunk& chunk) // NOLINT(readability-make-member-function-const)
 {
-  const auto* obj = chunk.code.memory().make_string(std::string{previous_.token});
-  emit(chunk, previous_.line, OpConstant{chunk.code.add_constant(obj)});
+  const auto* obj = chunk.memory->make_string(std::string{previous_.token});
+  emit(chunk, previous_.line, OpConstant{chunk.code->add_constant(obj)});
 }
 
 void
@@ -333,7 +334,7 @@ void
 Compile::named_variable(Chunk& chunk, Token token) // NOLINT(readability-make-member-function-const)
 {
   const auto var_name = std::string{token.token};
-  const auto index = chunk.code_cxt.maybe_add_global_variable(var_name);
+  const auto index = chunk.memory->maybe_add_global_variable(var_name);
 
   emit(chunk, previous_.line, OpGetGlobalVar{index});
 }
@@ -381,7 +382,7 @@ Compile::parse_variable(Chunk& chunk, const std::string& error_msg)
   consume(TokenType::identifier, error_msg);
   const auto var_name = std::string{previous_.token};
 
-  return chunk.code_cxt.maybe_add_global_variable(var_name);
+  return chunk.memory->maybe_add_global_variable(var_name);
 }
 
 // ---------------------------------------------------------------------------------------------- //
@@ -416,11 +417,10 @@ Compile::parse_precedence(Chunk& chunk, Precedence precedence)
 
 // ---------------------------------------------------------------------------------------------- //
 
-Expected<clox::Code, std::string>
-Compile::operator()(CodeContext& code_cxt)
+Expected<clox::Chunk, std::string>
+Compile::operator()(std::unique_ptr<Memory>&& memory)
 {
-  auto code = Code{};
-  auto chunk = Chunk{code, code_cxt};
+  auto chunk = Chunk{std::make_unique<Code>(), std::move(memory)};
 
   advance();
 
@@ -433,11 +433,11 @@ Compile::operator()(CodeContext& code_cxt)
 
   if (had_error_)
   {
-    return Expected<clox::Code, std::string>::error("Error");
+    return Expected<clox::Chunk, std::string>::error("Error");
   }
   else
   {
-    return Expected<clox::Code, std::string>::ok(std::move(code));
+    return Expected<clox::Chunk, std::string>::ok(std::move(chunk));
   }
 }
 

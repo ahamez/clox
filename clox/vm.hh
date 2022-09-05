@@ -1,8 +1,10 @@
 #pragma once
 
+#include <memory>
 #include <vector>
 
 #include "clox/chunk.hh"
+#include "clox/memory.hh"
 #include "clox/stack.hh"
 
 namespace clox {
@@ -21,6 +23,7 @@ struct InterpretResult
 {
   InterpretResultStatus status{};
   Stack stack{};
+  std::unique_ptr<Memory> memory{};
 };
 
 // ---------------------------------------------------------------------------------------------- //

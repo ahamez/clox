@@ -6,7 +6,6 @@
 #include <magic_enum.hpp>
 
 #include "clox/chunk.hh"
-#include "clox/code.hh"
 #include "clox/expected.hh"
 #include "clox/scanner.hh"
 
@@ -85,7 +84,7 @@ class Compile
 public:
   explicit Compile(Scanner&&);
 
-  Expected<Code, std::string> operator()(CodeContext&);
+  Expected<Chunk, std::string> operator()(std::unique_ptr<Memory>&&);
 
 private:
   void advance();

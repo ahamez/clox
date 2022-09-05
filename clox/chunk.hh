@@ -1,7 +1,9 @@
 #pragma once
 
+#include <memory>
+
 #include "clox/code.hh"
-#include "clox/code_context.hh"
+#include "clox/memory.hh"
 
 namespace clox {
 
@@ -9,8 +11,8 @@ namespace clox {
 
 struct Chunk
 {
-  Code& code;
-  CodeContext& code_cxt;
+  std::unique_ptr<Code> code;
+  std::unique_ptr<Memory> memory;
 };
 
 // ---------------------------------------------------------------------------------------------- //

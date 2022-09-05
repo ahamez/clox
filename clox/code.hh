@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "clox/code_fwd.hh"
-#include "clox/memory.hh"
 #include "clox/opcode.hh"
 #include "clox/value.hh"
 
@@ -35,13 +34,10 @@ public:
   [[nodiscard]] std::size_t code_offset(const_iterator code_cit) const;
   [[nodiscard]] std::optional<std::size_t> line(const_iterator code_cit) const;
 
-  [[nodiscard]] Memory& memory() noexcept;
-
 private:
   std::vector<Opcode> code_{};
   std::vector<std::optional<std::size_t>> lines_{};
   std::vector<Value> constants_{};
-  Memory memory_{};
 };
 
 // ---------------------------------------------------------------------------------------------- //

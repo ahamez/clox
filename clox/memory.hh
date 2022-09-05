@@ -1,7 +1,9 @@
 #pragma once
 
+#include <unordered_map>
 #include <vector>
 
+#include "clox/code_fwd.hh"
 #include "clox/obj_string.hh"
 
 namespace clox {
@@ -23,9 +25,16 @@ public:
 
   [[nodiscard]] const ObjString* make_string(std::string);
 
+  [[nodiscard]] GlobalVariableIndex maybe_add_global_variable(const std::string&);
+  [[nodiscard]] std::string get_global_variable(GlobalVariableIndex) const;
+  [[nodiscard]] GlobalVariableIndex last_global_variable_index() const noexcept;
+
 private:
   std::vector<ObjStringSet::bucket_type> string_set_buckets_;
   ObjStringSet string_set_;
+
+  std::unordered_map<std::string, GlobalVariableIndex> global_variables_{};
+  GlobalVariableIndex last_global_variable_index_{0};
 };
 
 // ---------------------------------------------------------------------------------------------- //

@@ -95,7 +95,7 @@ struct OpConstant
 
   [[nodiscard]] std::string disassemble(const auto& chunk) const
   {
-    return fmt::format("OP_CONSTANT {}", chunk.code.get_constant(constant));
+    return fmt::format("OP_CONSTANT {}", chunk.code->get_constant(constant));
   }
 };
 
@@ -108,7 +108,7 @@ struct OpDefineGlobalVar
   [[nodiscard]] std::string disassemble(const auto& chunk) const
   {
     return fmt::format("OP_DEFINE_GLOBAL_VAR {}",
-                       chunk.code_cxt.get_global_variable(global_variable_index));
+                       chunk.memory->get_global_variable(global_variable_index));
   }
 };
 
@@ -135,7 +135,7 @@ struct OpGetGlobalVar
   [[nodiscard]] std::string disassemble(const auto& chunk) const
   {
     return fmt::format("OP_GET_GLOBAL_VAR {}",
-                       chunk.code_cxt.get_global_variable(global_variable_index));
+                       chunk.memory->get_global_variable(global_variable_index));
   }
 };
 
