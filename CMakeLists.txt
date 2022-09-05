@@ -31,6 +31,7 @@ endif ()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
+option(${PROJECT_NAME}_CODE_COVERAGE "Activate code coverage" OFF)
 message(STATUS "Code coverage: ${CODE_COVERAGE}")
 
 include(Asan)
