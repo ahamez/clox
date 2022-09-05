@@ -14,7 +14,9 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_compile_options(-Wall -Wextra -Werror)
 
+include(GNUInstallDirs)
 include(CheckIPOSupported)
+
 check_ipo_supported(RESULT ipo_supported OUTPUT ipo_supported_result)
 if (!ipo_supported)
   message(NOTICE "IPO is not supported")
@@ -23,7 +25,6 @@ endif ()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-option(CODE_COVERAGE "Activate code coverage" OFF)
 message(STATUS "Code coverage: ${CODE_COVERAGE}")
 
 include(Asan)

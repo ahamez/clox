@@ -1,29 +1,38 @@
-add_library(
+add_library(clox)
+
+target_sources(
   clox
-  OBJECT
-  chunk.hh
+  PRIVATE
   code.cc
-  code_fwd.hh
   compile.cc
-  compile.hh
   disassemble.cc
+  memory.cc
+  obj_string.cc
+  scanner.cc
+  stack.cc
+  value.cc
+  vm.cc
+)
+
+target_sources(
+  clox
+  PUBLIC FILE_SET HEADERS
+  BASE_DIRS
+  ${CMAKE_SOURCE_DIR}
+  FILES
+  chunk.hh
+  code.hh
+  code_fwd.hh
   disassemble.hh
   expected.hh
-  memory.cc
   memory.hh
   nil.hh
-  obj_string.cc
   obj_string.hh
   opcode.hh
-  scanner.cc
   scanner.hh
-  stack.cc
   stack.hh
-  token.hh
-  value.cc
   value.hh
   visitor.hh
-  vm.cc
   vm.hh
 )
 
@@ -51,3 +60,5 @@ target_link_libraries(
   magic_enum::magic_enum
   type_safe::type_safe
 )
+
+install(TARGETS clox FILE_SET HEADERS)
