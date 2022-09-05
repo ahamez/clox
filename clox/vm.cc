@@ -116,19 +116,20 @@ struct Interpret
 
   Code::const_iterator operator()(OpGetGlobalVar op)
   {
-    const auto search = vm.globals().find(op.global_variable_index);
-
-    if (search == cend(vm.globals()))
+    if (const auto search = vm.globals().find(op.global_variable_index);
+        search == cend(vm.globals()))
     {
       throw InterpretReturn{
         InterpretResultStatus::runtime_error,
         fmt::format("Undefined variable {}",
                     chunk.memory->get_global_variable(op.global_variable_index))};
     }
+    else
+    {
+      stack.push(search->second);
 
-    stack.push(search->second);
-
-    return std::next(current_ip);
+      return std::next(current_ip);
+    }
   }
 
   Code::const_iterator operator()(OpNegate)
@@ -176,6 +177,23 @@ struct Interpret
   [[noreturn]] Code::const_iterator operator()(OpReturn)
   {
     throw InterpretReturn{InterpretResultStatus::ok};
+  }
+
+  Code::const_iterator operator()(OpSetGlobal op)
+  {
+    if (auto search = vm.globals().find(op.global_variable_index); search == cend(vm.globals()))
+    {
+      throw InterpretReturn{
+        InterpretResultStatus::runtime_error,
+        fmt::format("Undefined variable {}",
+                    chunk.memory->get_global_variable(op.global_variable_index))};
+    }
+    else
+    {
+      search->second = stack.top();
+
+      return std::next(current_ip);
+    }
   }
 
   Code::const_iterator operator()(OpTrue)

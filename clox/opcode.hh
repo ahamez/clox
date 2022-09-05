@@ -183,6 +183,15 @@ struct OpReturn
 
 // ---------------------------------------------------------------------------------------------- //
 
+struct OpSetGlobal
+{
+  GlobalVariableIndex global_variable_index;
+
+  [[nodiscard]] std::string disassemble(const auto&) const { return "OP_SET_GLOBAL"; }
+};
+
+// ---------------------------------------------------------------------------------------------- //
+
 struct OpTrue
 {
   [[nodiscard]] std::string disassemble(const auto&) const { return "OP_TRUE"; }
@@ -205,6 +214,7 @@ using Opcode = std::variant<OpAdd,
                             OpNot,
                             OpPop,
                             OpPrint,
+                            OpSetGlobal,
                             OpSubtract,
                             OpReturn,
                             OpTrue>;

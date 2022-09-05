@@ -188,7 +188,7 @@ Compile::expression(Chunk& chunk)
 }
 
 void
-Compile::literal(Chunk& chunk) // NOLINT(readability-make-member-function-const)
+Compile::literal(Chunk& chunk, CanAssign) // NOLINT(readability-make-member-function-const)
 {
   switch (previous_.type)
   {
@@ -207,21 +207,21 @@ Compile::literal(Chunk& chunk) // NOLINT(readability-make-member-function-const)
 }
 
 void
-Compile::number(Chunk& chunk) // NOLINT(readability-make-member-function-const)
+Compile::number(Chunk& chunk, CanAssign) // NOLINT(readability-make-member-function-const)
 {
   const auto value = std::stod(previous_.token.data());
   emit(chunk, previous_.line, OpConstant{chunk.code->add_constant(value)});
 }
 
 void
-Compile::grouping(Chunk& chunk)
+Compile::grouping(Chunk& chunk, CanAssign)
 {
   expression(chunk);
   consume(TokenType::right_paren, "Expect ')' after expression.");
 }
 
 void
-Compile::unary(Chunk& chunk)
+Compile::unary(Chunk& chunk, CanAssign)
 {
   const auto operator_type = previous_.type;
 
@@ -242,7 +242,7 @@ Compile::unary(Chunk& chunk)
 }
 
 void
-Compile::binary(Chunk& chunk)
+Compile::binary(Chunk& chunk, CanAssign)
 {
   const auto operator_type = previous_.type;
   const auto rule = get_rule(operator_type);
@@ -286,7 +286,7 @@ Compile::binary(Chunk& chunk)
 }
 
 void
-Compile::string(Chunk& chunk) // NOLINT(readability-make-member-function-const)
+Compile::string(Chunk& chunk, CanAssign) // NOLINT(readability-make-member-function-const)
 {
   const auto* obj = chunk.memory->make_string(std::string{previous_.token});
   emit(chunk, previous_.line, OpConstant{chunk.code->add_constant(obj)});
@@ -324,18 +324,28 @@ Compile::statement(Chunk& chunk)
 }
 
 void
-Compile::variable(clox::Chunk& chunk)
+Compile::variable(clox::Chunk& chunk, CanAssign can_assign)
 {
-  named_variable(chunk, previous_);
+  named_variable(chunk, previous_, can_assign);
 }
 
 void
-Compile::named_variable(Chunk& chunk, Token token) // NOLINT(readability-make-member-function-const)
+Compile::named_variable(Chunk& chunk,
+                        Token token,
+                        CanAssign can_assign) // NOLINT(readability-make-member-function-const)
 {
   const auto var_name = std::string{token.token};
   const auto index = chunk.memory->maybe_add_global_variable(var_name);
 
-  emit(chunk, previous_.line, OpGetGlobalVar{index});
+  if (can_assign == CanAssign::yes and match(TokenType::equal))
+  {
+    expression(chunk);
+    emit(chunk, previous_.line, OpSetGlobal{index});
+  }
+  else
+  {
+    emit(chunk, previous_.line, OpGetGlobalVar{index});
+  }
 }
 
 // ---------------------------------------------------------------------------------------------- //
@@ -404,13 +414,16 @@ Compile::parse_precedence(Chunk& chunk, Precedence precedence)
     error_at_previous("Expect expression");
     return;
   }
-  std::invoke(prefix_rule, this, chunk);
+
+  const auto can_assign =
+    precedence <= Precedence::assignement ? detail::CanAssign::yes : detail::CanAssign::no;
+  std::invoke(prefix_rule, this, chunk, can_assign);
 
   while (precedence <= get_rule(current_.type).precedence)
   {
     advance();
     const auto& infix_rule = get_rule(previous_.type).infix;
-    std::invoke(infix_rule, this, chunk);
+    std::invoke(infix_rule, this, chunk, can_assign);
   }
 }
 

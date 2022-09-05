@@ -19,7 +19,13 @@ class Compile;
 
 namespace detail {
 
-using ParseFn = void (Compile::*)(Chunk&);
+enum class CanAssign
+{
+  yes,
+  no
+};
+
+using ParseFn = void (Compile::*)(Chunk&, CanAssign);
 
 enum class Precedence
 {
@@ -97,16 +103,18 @@ private:
   void synchronize();
 
   void expression(Chunk&);
-  void binary(Chunk&);
-  void grouping(Chunk&);
-  void literal(Chunk&);
-  void number(Chunk&);
-  void unary(Chunk&);
-  void string(Chunk&);
+
+  void binary(Chunk&, detail::CanAssign);
+  void grouping(Chunk&, detail::CanAssign);
+  void literal(Chunk&, detail::CanAssign);
+  void number(Chunk&, detail::CanAssign);
+  void unary(Chunk&, detail::CanAssign);
+  void string(Chunk&, detail::CanAssign);
+  void variable(Chunk&, detail::CanAssign);
+  void named_variable(Chunk&, Token, detail::CanAssign);
+
   void declaration(Chunk&);
   void statement(Chunk&);
-  void variable(Chunk&);
-  void named_variable(Chunk&, Token);
 
   void print_statement(Chunk&);
   void expression_statement(Chunk&);
