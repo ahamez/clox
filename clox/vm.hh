@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <vector>
+#include <unordered_map>
 
 #include "clox/chunk.hh"
 #include "clox/memory.hh"
@@ -46,7 +46,7 @@ public:
 
 private:
   opt_disassemble disassemble_{opt_disassemble::no};
-  std::vector<Value> globals_{};
+  std::unordered_map<GlobalVariableIndex, Value> globals_{};
 };
 
 // ---------------------------------------------------------------------------------------------- //

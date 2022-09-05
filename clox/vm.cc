@@ -93,15 +93,7 @@ struct Interpret
   Code::const_iterator operator()(OpDefineGlobalVar op)
   {
     const auto var_value = stack.pop();
-
-    // Grow the storage of global variables if necessary.
-    if (vm.globals().size() <= static_cast<std::uint16_t>(op.global_variable_index))
-    {
-      const auto new_size = op.global_variable_index + GlobalVariableIndex{1};
-      vm.globals().resize(static_cast<std::uint16_t>(new_size));
-    }
-
-    vm.globals()[static_cast<std::uint16_t>(op.global_variable_index)] = var_value;
+    vm.globals().insert_or_assign(op.global_variable_index, var_value);
 
     return std::next(current_ip);
   }
@@ -124,7 +116,9 @@ struct Interpret
 
   Code::const_iterator operator()(OpGetGlobalVar op)
   {
-    if (static_cast<std::uint16_t>(op.global_variable_index) >= vm.globals().size())
+    const auto search = vm.globals().find(op.global_variable_index);
+
+    if (search == cend(vm.globals()))
     {
       throw InterpretReturn{
         InterpretResultStatus::runtime_error,
@@ -132,7 +126,7 @@ struct Interpret
                     chunk.memory->get_global_variable(op.global_variable_index))};
     }
 
-    stack.push(vm.globals()[static_cast<std::uint16_t>(op.global_variable_index)]);
+    stack.push(search->second);
 
     return std::next(current_ip);
   }
