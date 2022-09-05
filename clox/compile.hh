@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <sstream>
 #include <string>
 
 #include <magic_enum.hpp>
@@ -81,9 +82,12 @@ make_rules_impl(ParserRules& rules, T x, Ts... xs)
 class Compile
 {
 public:
+  using CompileResut = Expected<Chunk, std::pair<std::unique_ptr<Memory>, std::string>>;
+
+public:
   explicit Compile(Scanner&&);
 
-  Expected<Chunk, std::unique_ptr<Memory>> operator()(std::unique_ptr<Memory>&&);
+  CompileResut operator()(std::unique_ptr<Memory>&&);
 
 private:
   void advance();
@@ -123,6 +127,7 @@ private:
   Token previous_{};
   bool had_error_{false};
   bool panic_mode_{false};
+  std::stringstream error_msg_{};
 
   using Rule = detail::Rule;
   using Precedence = detail::Precedence;

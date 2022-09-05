@@ -41,7 +41,11 @@ interpret(const std::string& content, clox::VM& vm, std::unique_ptr<clox::Memory
   }
   else
   {
-    return std::move(maybe_chunk.error());
+    auto&& new_memory = std::get<0>(maybe_chunk.error());
+    const auto error_msg = std::get<1>(maybe_chunk.error());
+    std::cerr << error_msg << '\n';
+
+    return std::move(new_memory);
   }
 }
 

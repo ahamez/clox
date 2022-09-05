@@ -1,6 +1,5 @@
 #include <cassert>
 #include <functional>
-#include <iostream>
 
 #include <fmt/core.h>
 #include <magic_enum.hpp>
@@ -66,10 +65,10 @@ Compile::error_at(const Token& token, const std::string& msg)
   }
   panic_mode_ = true;
 
-  std::cerr << fmt::format("[line {:d}]", token.line);
+  error_msg_ << fmt::format("[line {:d}]", token.line);
   if (token.type == TokenType::eof)
   {
-    std::cerr << " at end";
+    error_msg_ << " at end";
   }
   else if (token.type == TokenType::error)
   {
@@ -77,10 +76,10 @@ Compile::error_at(const Token& token, const std::string& msg)
   }
   else
   {
-    std::cerr << fmt::format(" at {} ({})", token.token, magic_enum::enum_name(token.type));
+    error_msg_ << fmt::format(" at {} ({})", token.token, magic_enum::enum_name(token.type));
   }
 
-  std::cerr << fmt::format(": {}\n", msg);
+  error_msg_ << fmt::format(": {}\n", msg);
 
   had_error_ = true;
 }
@@ -417,7 +416,7 @@ Compile::parse_precedence(Chunk& chunk, Precedence precedence)
 
 // ---------------------------------------------------------------------------------------------- //
 
-Expected<clox::Chunk, std::unique_ptr<Memory>>
+Compile::CompileResut
 Compile::operator()(std::unique_ptr<Memory>&& memory)
 {
   auto chunk = Chunk{std::make_unique<Code>(), std::move(memory)};
@@ -433,11 +432,11 @@ Compile::operator()(std::unique_ptr<Memory>&& memory)
 
   if (had_error_)
   {
-    return Expected<clox::Chunk, std::unique_ptr<Memory>>::error(std::move(chunk.memory));
+    return CompileResut::error(std::make_tuple(std::move(chunk.memory), error_msg_.str()));
   }
   else
   {
-    return Expected<clox::Chunk, std::unique_ptr<Memory>>::ok(std::move(chunk));
+    return CompileResut::ok(std::move(chunk));
   }
 }
 
