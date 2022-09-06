@@ -28,33 +28,33 @@ read_file(const std::string& file_path)
   return file_content;
 }
 
-std::unique_ptr<clox::Memory>
-interpret(const std::string& content, clox::VM& vm, std::unique_ptr<clox::Memory>&& memory)
+std::shared_ptr<clox::Memory>
+interpret(const std::string& content, clox::VM& vm, std::shared_ptr<clox::Memory> memory)
 {
   using namespace clox;
 
-  auto maybe_chunk = Compile{Scanner{content}}(std::move(memory));
+  auto r = boost::leaf::try_handle_some(
+    [&]() -> boost::leaf::result<std::shared_ptr<Memory>>
+    {
+      BOOST_LEAF_AUTO(chunk, Compile{Scanner{content}}(std::move(memory)));
+      const auto result = vm(std::move(chunk));
 
-  if (maybe_chunk)
-  {
-    auto result = vm(std::move(maybe_chunk.get()));
-    return std::move(result.memory);
-  }
-  else
-  {
-    auto&& new_memory = std::get<0>(maybe_chunk.error());
-    const auto error_msg = std::get<1>(maybe_chunk.error());
-    std::cerr << error_msg << '\n';
+      return result.memory;
+    },
+    [](std::shared_ptr<Memory> new_memory, const std::string& error_msg)
+    {
+      std::cerr << error_msg << '\n';
+      return new_memory;
+    });
 
-    return std::move(new_memory);
-  }
+  return r.value();
 }
 
-std::unique_ptr<clox::Memory>
+std::shared_ptr<clox::Memory>
 interpret(const std::string& content)
 {
   auto vm = clox::VM{clox::VM::opt_disassemble::yes};
-  auto code_context = std::make_unique<clox::Memory>();
+  auto code_context = std::make_shared<clox::Memory>();
   return interpret(content, vm, std::move(code_context));
 }
 
@@ -62,7 +62,7 @@ void
 repl()
 {
   auto vm = clox::VM{clox::VM::opt_disassemble::no};
-  auto memory = std::make_unique<clox::Memory>();
+  auto memory = std::make_shared<clox::Memory>();
 
   std::cout << "> ";
   for (auto line = std::string{}; std::getline(std::cin, line);)
@@ -79,11 +79,10 @@ repl()
 int
 main(int argc, char** _argv)
 {
+  using namespace clox;
   try
   {
     const auto argv = std::span{_argv, static_cast<std::size_t>(argc)};
-
-    using namespace clox;
 
     std::cout << "Clox interpreter (v" << CLOX_VERSION << ")\n";
 
@@ -106,8 +105,7 @@ main(int argc, char** _argv)
   }
   catch (const std::exception& e)
   {
-    std::cerr << "Uncaught exception:\n";
-    std::cerr << e.what();
+    std::cerr << e.what() << '\n';
     return -1;
   }
 }

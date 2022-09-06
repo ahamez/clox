@@ -429,10 +429,10 @@ Compile::parse_precedence(Chunk& chunk, Precedence precedence)
 
 // ---------------------------------------------------------------------------------------------- //
 
-Compile::CompileResut
-Compile::operator()(std::unique_ptr<Memory>&& memory)
+Compile::CompileResult
+Compile::operator()(std::shared_ptr<Memory> memory)
 {
-  auto chunk = Chunk{std::make_unique<Code>(), std::move(memory)};
+  auto chunk = Chunk{std::make_shared<Code>(), memory};
 
   advance();
 
@@ -445,11 +445,11 @@ Compile::operator()(std::unique_ptr<Memory>&& memory)
 
   if (had_error_)
   {
-    return CompileResut::error(std::make_tuple(std::move(chunk.memory), error_msg_.str()));
+    return boost::leaf::new_error(memory, error_msg_.str());
   }
   else
   {
-    return CompileResut::ok(std::move(chunk));
+    return chunk;
   }
 }
 

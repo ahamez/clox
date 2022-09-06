@@ -4,9 +4,10 @@
 #include <sstream>
 #include <string>
 
+#include <boost/leaf.hpp>
+
 #include "clox/chunk.hh"
 #include "clox/detail/compile.hh"
-#include "clox/expected.hh"
 #include "clox/scanner.hh"
 
 namespace clox {
@@ -16,12 +17,12 @@ namespace clox {
 class Compile
 {
 public:
-  using CompileResut = Expected<Chunk, std::pair<std::unique_ptr<Memory>, std::string>>;
+  using CompileResult = boost::leaf::result<Chunk>;
 
 public:
   explicit Compile(Scanner&&);
 
-  CompileResut operator()(std::unique_ptr<Memory>&&);
+  CompileResult operator()(std::shared_ptr<Memory>);
 
 private:
   void advance();

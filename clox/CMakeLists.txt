@@ -28,7 +28,6 @@ target_sources(
   detail/stack.hh
   detail/visitor.hh
   disassemble.hh
-  expected.hh
   memory.hh
   nil.hh
   obj_string.hh

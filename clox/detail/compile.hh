@@ -7,7 +7,6 @@
 #include <magic_enum.hpp>
 
 #include "clox/chunk.hh"
-#include "clox/expected.hh"
 #include "clox/scanner.hh"
 
 // ---------------------------------------------------------------------------------------------- //

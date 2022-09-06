@@ -21,7 +21,7 @@ enum class VMResultStatus
 struct VMResult
 {
   VMResultStatus status{};
-  std::unique_ptr<Memory> memory{};
+  std::shared_ptr<Memory> memory{};
 };
 
 // ---------------------------------------------------------------------------------------------- //

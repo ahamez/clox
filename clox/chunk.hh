@@ -11,8 +11,8 @@ namespace clox {
 
 struct Chunk
 {
-  std::unique_ptr<Code> code;
-  std::unique_ptr<Memory> memory;
+  std::shared_ptr<Code> code;
+  std::shared_ptr<Memory> memory;
 };
 
 // ---------------------------------------------------------------------------------------------- //
