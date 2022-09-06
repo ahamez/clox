@@ -12,6 +12,8 @@ project(
   DESCRIPTION "A C++ Clox interpreter from the \"Crafting Interpreters\" book"
   LANGUAGES CXX)
 
+string(TOUPPER "${PROJECT_NAME}" PROJECT_NAME_UPPER)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -31,11 +33,13 @@ endif ()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-option(${PROJECT_NAME}_CODE_COVERAGE "Activate code coverage" OFF)
-message(STATUS "Code coverage: ${CODE_COVERAGE}")
+option(${PROJECT_NAME_UPPER}_CODE_COVERAGE "Activate code coverage" OFF)
+option(${PROJECT_NAME_UPPER}_CLANG_TIDY "Activate clang-tidy checks" OFF)
 
 include(Asan)
-include(ClangTidyChecks)
+if (${PROJECT_NAME_UPPER}_CLANG_TIDY)
+  include(ClangTidyChecks)
+endif ()
 
 # Support folders in IDEs
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -52,7 +56,7 @@ find_package(magic_enum REQUIRED)
 include(CTest)
 include(Catch)
 
-if (CODE_COVERAGE)
+if (${PROJECT_NAME_UPPER}_CODE_COVERAGE)
   include(CodeCoverage)
   append_coverage_compiler_flags()
   setup_target_for_coverage_lcov(
