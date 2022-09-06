@@ -40,22 +40,10 @@ if (ipo_supported)
   set_property(TARGET clox PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
 endif ()
 
-target_include_directories(
-  clox
-  PUBLIC
-  ${CMAKE_SOURCE_DIR}
-)
-
-target_include_directories(
-  clox
-  SYSTEM
-  PUBLIC
-  ${Boost_INCLUDE_DIRS}
-)
-
 target_link_libraries(
   clox
   PUBLIC
+  Boost::boost
   fmt::fmt
   magic_enum::magic_enum
   type_safe::type_safe
