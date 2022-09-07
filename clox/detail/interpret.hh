@@ -7,10 +7,10 @@
 #include <fmt/core.h>
 
 #include "clox/code.hh"
+#include "clox/detail/visitor.hh"
 #include "clox/nil.hh"
 #include "clox/obj_string.hh"
 #include "clox/opcode.hh"
-#include "clox/visitor.hh"
 #include "clox/vm.hh"
 
 namespace clox::detail {
@@ -58,14 +58,14 @@ struct Interpret
     const auto rhs = stack.pop();
     const auto lhs = stack.top();
 
-    std::visit(visitor{[&](double lhs, double rhs) { stack.top() = OpAdd{}(lhs, rhs); },
-                       [&](const ObjString* lhs, const ObjString* rhs)
-                       { stack.top() = chunk.memory->make_string(lhs->str + rhs->str); },
-                       [](const auto&, const auto&)
-                       {
-                         throw InterpretReturn{InterpretResultStatus::runtime_error,
-                                               "Operands must be numbers or strings"};
-                       }},
+    std::visit(detail::visitor{[&](double lhs, double rhs) { stack.top() = OpAdd{}(lhs, rhs); },
+                               [&](const ObjString* lhs, const ObjString* rhs)
+                               { stack.top() = chunk.memory->make_string(lhs->str + rhs->str); },
+                               [](const auto&, const auto&)
+                               {
+                                 throw InterpretReturn{InterpretResultStatus::runtime_error,
+                                                       "Operands must be numbers or strings"};
+                               }},
                lhs.value(),
                rhs.value());
 

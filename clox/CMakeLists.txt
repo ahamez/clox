@@ -26,6 +26,7 @@ target_sources(
   detail/compile.hh
   detail/index.hh
   detail/interpret.hh
+  detail/visitor.hh
   disassemble.hh
   expected.hh
   memory.hh
@@ -35,7 +36,6 @@ target_sources(
   scanner.hh
   stack.hh
   value.hh
-  visitor.hh
   vm.hh
   vm_result.hh
 )

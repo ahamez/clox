@@ -1,5 +1,5 @@
 #include "clox/value.hh"
-#include "clox/visitor.hh"
+#include "clox/detail/visitor.hh"
 
 namespace clox {
 
@@ -30,10 +30,10 @@ Value::Value(const ObjString* obj)
 bool
 Value::falsey() const
 {
-  return std::visit(visitor{[](bool b) { return not b; },
-                            [](double) { return false; },
-                            [](Nil) { return false; },
-                            [](const ObjString*) { return false; }},
+  return std::visit(detail::visitor{[](bool b) { return not b; },
+                                    [](double) { return false; },
+                                    [](Nil) { return false; },
+                                    [](const ObjString*) { return false; }},
                     value_);
 }
 
@@ -42,11 +42,12 @@ Value::falsey() const
 bool
 Value::operator==(const Value& rhs) const
 {
-  return std::visit(visitor{[](bool lhs, bool rhs) { return lhs == rhs; },
-                            [](double lhs, double rhs) { return lhs == rhs; },
-                            [](Nil, Nil) { return true; },
-                            [](const ObjString* lhs, const ObjString* rhs) { return *lhs == *rhs; },
-                            [](const auto&, const auto&) { return false; }},
+  return std::visit(detail::visitor{[](bool lhs, bool rhs) { return lhs == rhs; },
+                                    [](double lhs, double rhs) { return lhs == rhs; },
+                                    [](Nil, Nil) { return true; },
+                                    [](const ObjString* lhs, const ObjString* rhs)
+                                    { return *lhs == *rhs; },
+                                    [](const auto&, const auto&) { return false; }},
                     value_,
                     rhs.value_);
 }
@@ -61,10 +62,10 @@ Value::operator!=(const Value& rhs) const
 std::string
 Value::type() const
 {
-  return std::visit(visitor{[](bool) { return "boolean"; },
-                            [](double) { return "number"; },
-                            [](Nil) { return "nil"; },
-                            [](const ObjString*) { return "string"; }},
+  return std::visit(detail::visitor{[](bool) { return "boolean"; },
+                                    [](double) { return "number"; },
+                                    [](Nil) { return "nil"; },
+                                    [](const ObjString*) { return "string"; }},
                     value_);
 }
 
@@ -73,10 +74,10 @@ Value::type() const
 std::ostream&
 operator<<(std::ostream& os, const Value& value)
 {
-  std::visit(visitor{[&os](bool arg) { os << std::boolalpha << arg; },
-                     [&os](double arg) { os << arg; },
-                     [&os](Nil arg) { os << arg; },
-                     [&os](const ObjString* obj) { os << *obj; }},
+  std::visit(detail::visitor{[&os](bool arg) { os << std::boolalpha << arg; },
+                             [&os](double arg) { os << arg; },
+                             [&os](Nil arg) { os << arg; },
+                             [&os](const ObjString* obj) { os << *obj; }},
              value.value_);
   return os;
 }
