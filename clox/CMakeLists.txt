@@ -53,6 +53,6 @@ target_link_libraries(
 
 install(
   TARGETS clox
-  EXPORT clox-targets
+  EXPORT cloxTargets
   FILE_SET HEADERS
 )

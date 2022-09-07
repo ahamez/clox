@@ -71,6 +71,13 @@ if (${PROJECT_NAME_UPPER}_CODE_COVERAGE)
   )
 endif ()
 
+install(
+  EXPORT cloxTargets
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/clox
+  NAMESPACE clox::
+  FILE cloxConfig.cmake
+)
+
 add_subdirectory(app)
 add_subdirectory(clox)
 add_subdirectory(test)
