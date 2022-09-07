@@ -58,6 +58,18 @@ Value::operator!=(const Value& rhs) const
 
 // ---------------------------------------------------------------------------------------------- //
 
+std::string
+Value::type() const
+{
+  return std::visit(visitor{[](bool) { return "boolean"; },
+                            [](double) { return "number"; },
+                            [](Nil) { return "nil"; },
+                            [](const ObjString*) { return "string"; }},
+                    value_);
+}
+
+// ---------------------------------------------------------------------------------------------- //
+
 std::ostream&
 operator<<(std::ostream& os, const Value& value)
 {

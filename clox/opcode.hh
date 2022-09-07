@@ -2,6 +2,8 @@
 
 // ---------------------------------------------------------------------------------------------- //
 
+#include <iostream>
+
 #include <iosfwd>
 #include <variant>
 
@@ -30,60 +32,42 @@ struct OpBinary
 struct OpAddImpl
 {
   static constexpr std::string_view sv = "OP_ADD";
-  Value operator()(Value lhs, Value rhs) const noexcept
-  {
-    return lhs.as<double>() + rhs.as<double>();
-  }
+  Value operator()(Value lhs, Value rhs) const { return lhs.as<double>() + rhs.as<double>(); }
 };
 using OpAdd = OpBinary<OpAddImpl>;
 
 struct OpDivideImpl
 {
   static constexpr std::string_view sv = "OP_DIVIDE";
-  Value operator()(Value lhs, Value rhs) const noexcept
-  {
-    return lhs.as<double>() / rhs.as<double>();
-  }
+  Value operator()(Value lhs, Value rhs) const { return lhs.as<double>() / rhs.as<double>(); }
 };
 using OpDivide = OpBinary<OpDivideImpl>;
 
 struct OpMultiplyImpl
 {
   static constexpr std::string_view sv = "OP_MULTIPLY";
-  Value operator()(Value lhs, Value rhs) const noexcept
-  {
-    return lhs.as<double>() * rhs.as<double>();
-  }
+  Value operator()(Value lhs, Value rhs) const { return lhs.as<double>() * rhs.as<double>(); }
 };
 using OpMultiply = OpBinary<OpMultiplyImpl>;
 
 struct OpSubtractImpl
 {
   static constexpr std::string_view sv = "OP_SUBTRACT";
-  Value operator()(Value lhs, Value rhs) const noexcept
-  {
-    return lhs.as<double>() - rhs.as<double>();
-  }
+  Value operator()(Value lhs, Value rhs) const { return lhs.as<double>() - rhs.as<double>(); }
 };
 using OpSubtract = OpBinary<OpSubtractImpl>;
 
 struct OpGreaterImpl
 {
   static constexpr std::string_view sv = "OP_GREATER";
-  Value operator()(Value lhs, Value rhs) const noexcept
-  {
-    return lhs.as<double>() > rhs.as<double>();
-  }
+  Value operator()(Value lhs, Value rhs) const { return lhs.as<double>() > rhs.as<double>(); }
 };
 using OpGreater = OpBinary<OpGreaterImpl>;
 
 struct OpLessImpl
 {
   static constexpr std::string_view sv = "OP_LESS";
-  Value operator()(Value lhs, Value rhs) const noexcept
-  {
-    return lhs.as<double>() < rhs.as<double>();
-  }
+  Value operator()(Value lhs, Value rhs) const { return lhs.as<double>() < rhs.as<double>(); }
 };
 using OpLess = OpBinary<OpLessImpl>;
 

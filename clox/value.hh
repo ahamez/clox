@@ -12,11 +12,25 @@ namespace clox {
 
 // ---------------------------------------------------------------------------------------------- //
 
+struct BadValueAccess : public std::exception
+{
+  BadValueAccess(std::string expected_type, std::string held_type)
+    : expected_type{std::move(expected_type)}
+    , held_type{std::move(held_type)}
+  {}
+
+  [[nodiscard]] const char* what() const noexcept override { return "Bad type"; }
+
+  std::string expected_type;
+  std::string held_type;
+};
+
+// ---------------------------------------------------------------------------------------------- //
+
 class Value
 {
 private:
-  using type = std::variant<double, bool, Nil, const ObjString*>;
-  type value_;
+  std::variant<double, bool, Nil, const ObjString*> value_;
 
 public:
   Value();
@@ -28,7 +42,14 @@ public:
   template<typename T>
   [[nodiscard]] T as() const
   {
-    return std::get<T>(value_);
+    try
+    {
+      return std::get<T>(value_);
+    }
+    catch (const std::bad_variant_access&)
+    {
+      throw BadValueAccess{Value{T{}}.type(), type()};
+    }
   }
 
   template<typename T>
@@ -43,6 +64,10 @@ public:
   bool operator!=(const Value& rhs) const;
 
   friend std::ostream& operator<<(std::ostream& os, const Value& value);
+
+  std::string type() const;
+
+  const auto& value() const noexcept {return value_;}
 };
 
 // ---------------------------------------------------------------------------------------------- //

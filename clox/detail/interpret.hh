@@ -10,6 +10,7 @@
 #include "clox/nil.hh"
 #include "clox/obj_string.hh"
 #include "clox/opcode.hh"
+#include "clox/visitor.hh"
 #include "clox/vm.hh"
 
 namespace clox::detail {
@@ -45,45 +46,30 @@ struct Interpret
   template<typename Op>
   Code::const_iterator operator()(OpBinary<Op>)
   {
-    if (not stack.peek(0).is<double>() or not stack.peek(1).is<double>())
-    {
-      throw InterpretReturn{InterpretResultStatus::runtime_error, "Operands must be numbers"};
-    }
-    else
-    {
-      const auto rhs = stack.pop();
-      const auto lhs = stack.top();
-      stack.top() = OpBinary<Op>{}(lhs, rhs);
+    const auto rhs = stack.pop();
+    const auto lhs = stack.top();
+    stack.top() = OpBinary<Op>{}(lhs, rhs);
 
-      return std::next(current_ip);
-    }
+    return std::next(current_ip);
   }
 
   Code::const_iterator operator()(OpAdd)
   {
-    if (stack.peek(0).is<double>() and stack.peek(1).is<double>())
-    {
-      const auto rhs = stack.pop();
-      const auto lhs = stack.top();
-      stack.top() = OpAdd{}(lhs, rhs);
-      return std::next(current_ip);
-    }
-    else if (stack.peek(0).is<const ObjString*>() and stack.peek(1).is<const ObjString*>())
-    {
-      const auto rhs = stack.pop();
-      const auto lhs = stack.top();
+    const auto rhs = stack.pop();
+    const auto lhs = stack.top();
 
-      const auto& lhs_str = lhs.as<const ObjString*>()->str;
-      const auto& rhs_str = rhs.as<const ObjString*>()->str;
+    std::visit(visitor{[&](double lhs, double rhs) { stack.top() = OpAdd{}(lhs, rhs); },
+                       [&](const ObjString* lhs, const ObjString* rhs)
+                       { stack.top() = chunk.memory->make_string(lhs->str + rhs->str); },
+                       [](const auto&, const auto&)
+                       {
+                         throw InterpretReturn{InterpretResultStatus::runtime_error,
+                                               "Operands must be numbers or strings"};
+                       }},
+               lhs.value(),
+               rhs.value());
 
-      stack.top() = chunk.memory->make_string(lhs_str + rhs_str);
-      return std::next(current_ip);
-    }
-    else
-    {
-      throw InterpretReturn{InterpretResultStatus::runtime_error,
-                            "Operands must be numbers or strings"};
-    }
+    return std::next(current_ip);
   }
 
   Code::const_iterator operator()(OpConstant op)
@@ -138,16 +124,9 @@ struct Interpret
 
   Code::const_iterator operator()(OpNegate)
   {
-    if (not stack.peek(0).is<double>())
-    {
-      throw InterpretReturn{InterpretResultStatus::runtime_error, "Operand must be a number"};
-    }
-    else
-    {
-      stack.top() = -stack.top().as<double>();
+    stack.top() = -stack.top().as<double>();
 
-      return std::next(current_ip);
-    }
+    return std::next(current_ip);
   }
 
   Code::const_iterator operator()(OpNil)
@@ -209,7 +188,16 @@ struct Interpret
 
   [[nodiscard]] Code::const_iterator visit() const
   {
-    return std::visit(Interpret{chunk, vm, stack, current_ip}, *current_ip);
+    try
+    {
+      return std::visit(Interpret{chunk, vm, stack, current_ip}, *current_ip);
+    }
+    catch (const BadValueAccess& e)
+    {
+      const auto message =
+        fmt::format("Bad type access: expected {}, got {}", e.expected_type, e.held_type);
+      throw InterpretReturn{InterpretResultStatus::runtime_error, message};
+    }
   }
 };
 
