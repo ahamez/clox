@@ -35,10 +35,14 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 option(${PROJECT_NAME_UPPER}_CODE_COVERAGE "Activate code coverage" OFF)
 option(${PROJECT_NAME_UPPER}_CLANG_TIDY "Activate clang-tidy checks" OFF)
+option(${PROJECT_NAME_UPPER}_IWYU " Activate include-what-you-use" OFF)
 
 include(Asan)
 if (${PROJECT_NAME_UPPER}_CLANG_TIDY)
   include(ClangTidyChecks)
+endif ()
+if (${PROJECT_NAME_UPPER}_IWYU)
+  include(IWYU)
 endif ()
 
 # Support folders in IDEs

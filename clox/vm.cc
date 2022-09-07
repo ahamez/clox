@@ -2,7 +2,13 @@
 #include <iostream>
 #include <iterator>
 
+#include <fmt/core.h>
+
+#include "clox/code.hh"
 #include "clox/disassemble.hh"
+#include "clox/nil.hh"
+#include "clox/obj_string.hh"
+#include "clox/opcode.hh"
 #include "clox/vm.hh"
 
 namespace clox {

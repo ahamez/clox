@@ -1,8 +1,8 @@
 #pragma once
 
-#include <functional>
 #include <iosfwd>
 #include <string>
+#include <typeindex>
 
 #include <boost/intrusive/unordered_set.hpp>
 
