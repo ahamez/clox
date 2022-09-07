@@ -4,6 +4,7 @@
 #include <unordered_map>
 
 #include "clox/chunk.hh"
+#include "clox/detail/index.hh"
 #include "clox/memory.hh"
 #include "clox/stack.hh"
 
@@ -46,7 +47,7 @@ public:
 
 private:
   opt_disassemble disassemble_{opt_disassemble::no};
-  std::unordered_map<GlobalVariableIndex, Value> globals_{};
+  std::unordered_map<detail::GlobalVariableIndex, Value> globals_{};
 };
 
 // ---------------------------------------------------------------------------------------------- //

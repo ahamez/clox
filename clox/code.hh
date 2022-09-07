@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "clox/index.hh"
+#include "clox/detail/index.hh"
 #include "clox/opcode.hh"
 #include "clox/value.hh"
 
@@ -26,8 +26,8 @@ public:
     lines_.emplace_back(line);
   }
 
-  [[nodiscard]] ConstantIndex add_constant(Value);
-  [[nodiscard]] Value get_constant(ConstantIndex) const;
+  [[nodiscard]] detail::ConstantIndex add_constant(Value);
+  [[nodiscard]] Value get_constant(detail::ConstantIndex) const;
 
   [[nodiscard]] const_iterator cbegin() const noexcept;
 

@@ -23,7 +23,8 @@ target_sources(
   FILES
   chunk.hh
   code.hh
-  index.hh
+  detail/compile.hh
+  detail/index.hh
   disassemble.hh
   expected.hh
   memory.hh

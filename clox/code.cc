@@ -6,17 +6,17 @@ namespace clox {
 
 // ---------------------------------------------------------------------------------------------- //
 
-ConstantIndex
+detail::ConstantIndex
 Code::add_constant(Value v)
 {
   const auto it = constants_.insert(constants_.end(), v);
   const auto index = static_cast<std::uint16_t>(it - constants_.cbegin());
 
-  return ConstantIndex{index};
+  return detail::ConstantIndex{index};
 }
 
 Value
-Code::get_constant(ConstantIndex index) const
+Code::get_constant(detail::ConstantIndex index) const
 {
   return constants_[static_cast<std::uint16_t>(index)];
 }

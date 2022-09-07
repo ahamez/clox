@@ -39,7 +39,7 @@ Memory::make_string(std::string str)
 
 // ---------------------------------------------------------------------------------------------- //
 
-GlobalVariableIndex
+detail::GlobalVariableIndex
 Memory::maybe_add_global_variable(const std::string& name)
 {
   if (const auto search = global_variables_.find(name); search != cend(global_variables_))
@@ -56,7 +56,7 @@ Memory::maybe_add_global_variable(const std::string& name)
 }
 
 std::string
-Memory::get_global_variable(clox::GlobalVariableIndex index) const
+Memory::get_global_variable(clox::detail::GlobalVariableIndex index) const
 {
   // TODO implement reverse lookup index -> variable name
   const auto search = std::find_if(cbegin(global_variables_),
@@ -74,7 +74,7 @@ Memory::get_global_variable(clox::GlobalVariableIndex index) const
   }
 }
 
-GlobalVariableIndex
+detail::GlobalVariableIndex
 Memory::last_global_variable_index() const noexcept
 {
   return last_global_variable_index_;

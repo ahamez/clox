@@ -7,7 +7,7 @@
 
 #include <fmt/core.h>
 
-#include "clox/index.hh"
+#include "clox/detail/index.hh"
 #include "clox/value.hh"
 
 namespace clox {
@@ -91,7 +91,7 @@ using OpLess = OpBinary<OpLessImpl>;
 
 struct OpConstant
 {
-  ConstantIndex constant;
+  detail::ConstantIndex constant;
 
   [[nodiscard]] std::string disassemble(const auto& chunk) const
   {
@@ -103,7 +103,7 @@ struct OpConstant
 
 struct OpDefineGlobalVar
 {
-  GlobalVariableIndex global_variable_index;
+  detail::GlobalVariableIndex global_variable_index;
 
   [[nodiscard]] std::string disassemble(const auto& chunk) const
   {
@@ -130,7 +130,7 @@ struct OpFalse
 
 struct OpGetGlobalVar
 {
-  GlobalVariableIndex global_variable_index;
+  detail::GlobalVariableIndex global_variable_index;
 
   [[nodiscard]] std::string disassemble(const auto& chunk) const
   {
@@ -185,7 +185,7 @@ struct OpReturn
 
 struct OpSetGlobal
 {
-  GlobalVariableIndex global_variable_index;
+  detail::GlobalVariableIndex global_variable_index;
 
   [[nodiscard]] std::string disassemble(const auto&) const { return "OP_SET_GLOBAL"; }
 };

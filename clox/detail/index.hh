@@ -4,7 +4,7 @@
 
 #include <type_safe/strong_typedef.hpp>
 
-namespace clox {
+namespace clox::detail {
 
 // ---------------------------------------------------------------------------------------------- //
 
@@ -26,14 +26,15 @@ struct GlobalVariableIndex
 
 // ---------------------------------------------------------------------------------------------- //
 
-} // namespace clox
+} // namespace clox::detail
 
 // ---------------------------------------------------------------------------------------------- //
 
 namespace std {
 
 template<>
-struct hash<clox::GlobalVariableIndex> : type_safe::hashable<clox::GlobalVariableIndex>
+struct hash<clox::detail::GlobalVariableIndex>
+  : type_safe::hashable<clox::detail::GlobalVariableIndex>
 {};
 
 } // namespace std
