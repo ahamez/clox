@@ -1,4 +1,5 @@
 add_library(clox)
+add_library(clox::clox ALIAS clox)
 
 target_sources(
   clox
@@ -49,4 +50,8 @@ target_link_libraries(
   type_safe::type_safe
 )
 
-install(TARGETS clox FILE_SET HEADERS)
+install(
+  TARGETS clox
+  EXPORT clox-targets
+  FILE_SET HEADERS
+)
