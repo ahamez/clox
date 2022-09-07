@@ -78,26 +78,35 @@ repl()
 int
 main(int argc, char** argv)
 {
-  using namespace clox;
+  try
+  {
+    using namespace clox;
 
-  std::cout << "Clox interpreter (v" << CLOX_VERSION << ")\n";
+    std::cout << "Clox interpreter (v" << CLOX_VERSION << ")\n";
 
-  if (argc == 1)
-  {
-    repl();
+    if (argc == 1)
+    {
+      repl();
+    }
+    else if (argc == 2)
+    {
+      const auto file_content = read_file(argv[1]);
+      interpret(file_content);
+    }
+    else
+    {
+      std::cerr << "Usage: clox [path]\n";
+      return -1;
+    }
+
+    return 0;
   }
-  else if (argc == 2)
+  catch (const std::exception& e)
   {
-    const auto file_content = read_file(argv[1]);
-    interpret(file_content);
-  }
-  else
-  {
-    std::cerr << "Usage: clox [path]\n";
+    std::cerr << "Uncaught exception:\n";
+    std::cerr << e.what();
     return -1;
   }
-
-  return 0;
 }
 
 // ---------------------------------------------------------------------------------------------- //
