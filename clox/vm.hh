@@ -5,27 +5,9 @@
 
 #include "clox/chunk.hh"
 #include "clox/detail/index.hh"
-#include "clox/memory.hh"
-#include "clox/stack.hh"
+#include "clox/vm_result.hh"
 
 namespace clox {
-
-// ---------------------------------------------------------------------------------------------- //
-
-enum class InterpretResultStatus
-{
-  ok,
-  runtime_error
-};
-
-// ---------------------------------------------------------------------------------------------- //
-
-struct InterpretResult
-{
-  InterpretResultStatus status{};
-  Stack stack{};
-  std::unique_ptr<Memory> memory{};
-};
 
 // ---------------------------------------------------------------------------------------------- //
 
@@ -40,9 +22,8 @@ public:
 
   explicit VM(opt_disassemble disassemble = opt_disassemble::no);
 
-  [[nodiscard]] InterpretResult operator()(Chunk&);
   [[nodiscard]] InterpretResult operator()(Chunk&&);
-
+  
   [[nodiscard]] auto& globals() noexcept { return globals_; }
 
 private:

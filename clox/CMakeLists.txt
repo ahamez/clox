@@ -25,6 +25,7 @@ target_sources(
   code.hh
   detail/compile.hh
   detail/index.hh
+  detail/interpret.hh
   disassemble.hh
   expected.hh
   memory.hh
@@ -36,6 +37,7 @@ target_sources(
   value.hh
   visitor.hh
   vm.hh
+  vm_result.hh
 )
 
 if (ipo_supported)
