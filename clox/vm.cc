@@ -13,7 +13,7 @@ constexpr auto globals_reserve = 1024;
 // ---------------------------------------------------------------------------------------------- //
 
 template<VM::opt_disassemble Disassemble>
-[[nodiscard]] InterpretResult
+[[nodiscard]] VMResult
 run(Chunk& chunk, VM& vm)
 {
   auto current_ip = chunk.code->cbegin();
@@ -32,7 +32,7 @@ run(Chunk& chunk, VM& vm)
   }
   catch (const detail::InterpretReturn& r)
   {
-    if (r.status != InterpretResultStatus::ok)
+    if (r.status != VMResultStatus::ok)
     {
       std::cerr << "line " << chunk.code->line(current_ip).value_or(0) << ": " << r.message << '\n';
     }
@@ -52,7 +52,7 @@ VM::VM(VM::opt_disassemble disassemble)
 
 // ---------------------------------------------------------------------------------------------- //
 
-InterpretResult
+VMResult
 VM::operator()(Chunk&& chunk)
 {
   if (disassemble_ == opt_disassemble::yes)

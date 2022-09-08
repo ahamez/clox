@@ -21,18 +21,18 @@ namespace clox::detail {
 
 struct InterpretReturn : public std::exception
 {
-  explicit InterpretReturn(InterpretResultStatus status)
+  explicit InterpretReturn(VMResultStatus status)
     : InterpretReturn{status, {}}
   {}
 
-  explicit InterpretReturn(InterpretResultStatus status, std::string msg)
+  explicit InterpretReturn(VMResultStatus status, std::string msg)
     : status{status}
     , message{std::move(msg)}
   {}
 
   [[nodiscard]] const char* what() const noexcept override { return message.data(); }
 
-  InterpretResultStatus status;
+  VMResultStatus status;
   std::string message;
 };
 
@@ -61,9 +61,8 @@ struct Dispatch
     std::visit(detail::visitor{[&](double lhs, double rhs) { stack.top() = OpAdd{}(lhs, rhs); },
                                [&](const ObjString* lhs, const ObjString* rhs)
                                { stack.top() = chunk.memory->make_string(lhs->str + rhs->str); },
-                               [](const auto&, const auto&)
-                               {
-                                 throw InterpretReturn{InterpretResultStatus::runtime_error,
+                               [](const auto&, const auto&) {
+                                 throw InterpretReturn{VMResultStatus::runtime_error,
                                                        "Operands must be numbers or strings"};
                                }},
                lhs.value(),
@@ -97,7 +96,7 @@ struct Dispatch
         search == cend(vm.globals()))
     {
       throw InterpretReturn{
-        InterpretResultStatus::runtime_error,
+        VMResultStatus::runtime_error,
         fmt::format("Undefined variable {}",
                     chunk.memory->get_global_variable(op.global_variable_index))};
     }
@@ -120,7 +119,7 @@ struct Dispatch
   // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
   [[noreturn]] Code::const_iterator operator()(OpReturn) const
   {
-    throw InterpretReturn{InterpretResultStatus::ok};
+    throw InterpretReturn{VMResultStatus::ok};
   }
 
   void operator()(OpSetGlobal op) const
@@ -128,7 +127,7 @@ struct Dispatch
     if (auto search = vm.globals().find(op.global_variable_index); search == cend(vm.globals()))
     {
       throw InterpretReturn{
-        InterpretResultStatus::runtime_error,
+        VMResultStatus::runtime_error,
         fmt::format("Undefined variable {}",
                     chunk.memory->get_global_variable(op.global_variable_index))};
     }
@@ -175,7 +174,7 @@ struct Interpret
     {
       const auto message =
         fmt::format("Bad type access: expected {}, got {}", e.expected_type, e.held_type);
-      throw InterpretReturn{InterpretResultStatus::runtime_error, message};
+      throw InterpretReturn{VMResultStatus::runtime_error, message};
     }
   }
 };

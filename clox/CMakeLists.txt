@@ -36,7 +36,6 @@ target_sources(
   scanner.hh
   value.hh
   vm.hh
-  vm_result.hh
 )
 
 if (ipo_supported)

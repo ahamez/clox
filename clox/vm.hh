@@ -5,9 +5,24 @@
 
 #include "clox/chunk.hh"
 #include "clox/detail/index.hh"
-#include "clox/vm_result.hh"
 
 namespace clox {
+
+// ---------------------------------------------------------------------------------------------- //
+
+enum class VMResultStatus
+{
+  ok,
+  runtime_error
+};
+
+// ---------------------------------------------------------------------------------------------- //
+
+struct VMResult
+{
+  VMResultStatus status{};
+  std::unique_ptr<Memory> memory{};
+};
 
 // ---------------------------------------------------------------------------------------------- //
 
@@ -22,8 +37,8 @@ public:
 
   explicit VM(opt_disassemble disassemble = opt_disassemble::no);
 
-  [[nodiscard]] InterpretResult operator()(Chunk&&);
-  
+  [[nodiscard]] VMResult operator()(Chunk&&);
+
   [[nodiscard]] auto& globals() noexcept { return globals_; }
 
 private:
