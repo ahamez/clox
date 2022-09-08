@@ -58,15 +58,15 @@ struct Dispatch
     const auto rhs = stack.pop();
     const auto lhs = stack.top();
 
-    std::visit(detail::visitor{[&](double lhs, double rhs) { stack.top() = OpAdd{}(lhs, rhs); },
-                               [&](const ObjString* lhs, const ObjString* rhs)
-                               { stack.top() = chunk.memory->make_string(lhs->str + rhs->str); },
-                               [](const auto&, const auto&) {
-                                 throw InterpretReturn{VMResultStatus::runtime_error,
-                                                       "Operands must be numbers or strings"};
-                               }},
-               lhs.value(),
-               rhs.value());
+    const auto visitor = detail::visitor{
+      [&](double lhs, double rhs) { stack.top() = OpAdd{}(lhs, rhs); },
+      [&](const ObjString* lhs, const ObjString* rhs)
+      { stack.top() = chunk.memory->make_string(lhs->str + rhs->str); },
+      [](const auto&, const auto&) {
+        throw InterpretReturn{VMResultStatus::runtime_error, "Operands must be numbers or strings"};
+      }};
+
+    std::visit(visitor, lhs.value(), rhs.value());
   }
 
   void operator()(OpConstant op) const
