@@ -1,7 +1,7 @@
 #pragma once
 
 #include <exception>
-#include <iostream>
+#include <iosfwd>
 #include <iterator>
 #include <type_traits>
 
@@ -43,6 +43,7 @@ struct Dispatch
   Chunk& chunk;
   VM& vm;
   Stack& stack;
+  std::ostream& os;
   const Code::const_iterator current_ip;
 
   template<typename Op>
@@ -114,7 +115,7 @@ struct Dispatch
 
   void operator()(OpPop) const { [[maybe_unused]] const auto _ = stack.pop(); }
 
-  void operator()(OpPrint) const { std::cout << stack.pop() << '\n'; }
+  void operator()(OpPrint) const { os << stack.pop() << '\n'; }
 
   // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
   [[noreturn]] Code::const_iterator operator()(OpReturn) const
@@ -145,6 +146,7 @@ struct Interpret
   Chunk& chunk;
   VM& vm;
   detail::Stack& stack;
+  std::ostream& os;
   const Code::const_iterator current_ip;
 
   template<typename T>
@@ -155,11 +157,11 @@ struct Interpret
 
     if constexpr (op_modifies_current_ip)
     {
-      return Dispatch{chunk, vm, stack, current_ip}(x);
+      return Dispatch{chunk, vm, stack, os, current_ip}(x);
     }
     else
     {
-      Dispatch{chunk, vm, stack, current_ip}(x);
+      Dispatch{chunk, vm, stack, os, current_ip}(x);
       return std::next(current_ip);
     }
   }
@@ -168,7 +170,7 @@ struct Interpret
   {
     try
     {
-      return std::visit(Interpret{chunk, vm, stack, current_ip}, *current_ip);
+      return std::visit(Interpret{chunk, vm, stack, os, current_ip}, *current_ip);
     }
     catch (const BadValueAccess& e)
     {

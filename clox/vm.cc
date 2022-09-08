@@ -27,7 +27,7 @@ run(Chunk& chunk, VM& vm)
       {
         std::cout << disassemble(current_ip, chunk) << '\n';
       }
-      current_ip = detail::Interpret{chunk, vm, stack, current_ip}.visit();
+      current_ip = detail::Interpret{chunk, vm, stack, std::cout, current_ip}.visit();
     }
   }
   catch (const detail::InterpretReturn& r)
