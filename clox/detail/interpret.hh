@@ -46,14 +46,14 @@ struct Dispatch
   const Code::const_iterator current_ip;
 
   template<typename Op>
-  void operator()(OpBinary<Op>)
+  void operator()(OpBinary<Op>) const
   {
     const auto rhs = stack.pop();
     const auto lhs = stack.top();
     stack.top() = OpBinary<Op>{}(lhs, rhs);
   }
 
-  void operator()(OpAdd)
+  void operator()(OpAdd) const
   {
     const auto rhs = stack.pop();
     const auto lhs = stack.top();
@@ -70,28 +70,28 @@ struct Dispatch
                rhs.value());
   }
 
-  void operator()(OpConstant op)
+  void operator()(OpConstant op) const
   {
     const auto value = chunk.code->get_constant(op.constant);
     stack.push(value);
   }
 
-  void operator()(OpDefineGlobalVar op)
+  void operator()(OpDefineGlobalVar op) const
   {
     const auto var_value = stack.pop();
     vm.globals().insert_or_assign(op.global_variable_index, var_value);
   }
 
-  void operator()(OpEqual)
+  void operator()(OpEqual) const
   {
     const auto rhs = stack.pop();
     const auto lhs = stack.top();
     stack.top() = (rhs == lhs);
   }
 
-  void operator()(OpFalse) { stack.push(false); }
+  void operator()(OpFalse) const { stack.push(false); }
 
-  void operator()(OpGetGlobalVar op)
+  void operator()(OpGetGlobalVar op) const
   {
     if (const auto search = vm.globals().find(op.global_variable_index);
         search == cend(vm.globals()))
@@ -107,23 +107,23 @@ struct Dispatch
     }
   }
 
-  void operator()(OpNegate) { stack.top() = -stack.top().as<double>(); }
+  void operator()(OpNegate) const { stack.top() = -stack.top().as<double>(); }
 
-  void operator()(OpNil) { stack.push(Nil{}); }
+  void operator()(OpNil) const { stack.push(Nil{}); }
 
-  void operator()(OpNot) { stack.push(stack.pop().falsey()); }
+  void operator()(OpNot) const { stack.push(stack.pop().falsey()); }
 
-  void operator()(OpPop) { [[maybe_unused]] const auto _ = stack.pop(); }
+  void operator()(OpPop) const { [[maybe_unused]] const auto _ = stack.pop(); }
 
-  void operator()(OpPrint) { std::cout << stack.pop() << '\n'; }
+  void operator()(OpPrint) const { std::cout << stack.pop() << '\n'; }
 
   // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-  [[noreturn]] Code::const_iterator operator()(OpReturn)
+  [[noreturn]] Code::const_iterator operator()(OpReturn) const
   {
     throw InterpretReturn{InterpretResultStatus::ok};
   }
 
-  void operator()(OpSetGlobal op)
+  void operator()(OpSetGlobal op) const
   {
     if (auto search = vm.globals().find(op.global_variable_index); search == cend(vm.globals()))
     {
@@ -138,7 +138,7 @@ struct Dispatch
     }
   }
 
-  void operator()(OpTrue) { stack.push(true); }
+  void operator()(OpTrue) const { stack.push(true); }
 };
 
 struct Interpret
