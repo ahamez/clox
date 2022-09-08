@@ -3,6 +3,7 @@
 #include <exception>
 #include <iostream>
 #include <iterator>
+#include <type_traits>
 
 #include <fmt/core.h>
 
@@ -36,7 +37,7 @@ struct InterpretReturn : public std::exception
 
 // ---------------------------------------------------------------------------------------------- //
 
-struct Interpret
+struct Dispatch
 {
   Chunk& chunk;
   VM& vm;
@@ -44,16 +45,14 @@ struct Interpret
   const Code::const_iterator current_ip;
 
   template<typename Op>
-  Code::const_iterator operator()(OpBinary<Op>)
+  void operator()(OpBinary<Op>)
   {
     const auto rhs = stack.pop();
     const auto lhs = stack.top();
     stack.top() = OpBinary<Op>{}(lhs, rhs);
-
-    return std::next(current_ip);
   }
 
-  Code::const_iterator operator()(OpAdd)
+  void operator()(OpAdd)
   {
     const auto rhs = stack.pop();
     const auto lhs = stack.top();
@@ -68,43 +67,30 @@ struct Interpret
                                }},
                lhs.value(),
                rhs.value());
-
-    return std::next(current_ip);
   }
 
-  Code::const_iterator operator()(OpConstant op)
+  void operator()(OpConstant op)
   {
     const auto value = chunk.code->get_constant(op.constant);
     stack.push(value);
-
-    return std::next(current_ip);
   }
 
-  Code::const_iterator operator()(OpDefineGlobalVar op)
+  void operator()(OpDefineGlobalVar op)
   {
     const auto var_value = stack.pop();
     vm.globals().insert_or_assign(op.global_variable_index, var_value);
-
-    return std::next(current_ip);
   }
 
-  Code::const_iterator operator()(OpEqual)
+  void operator()(OpEqual)
   {
     const auto rhs = stack.pop();
     const auto lhs = stack.top();
     stack.top() = (rhs == lhs);
-
-    return std::next(current_ip);
   }
 
-  Code::const_iterator operator()(OpFalse)
-  {
-    stack.push(false);
+  void operator()(OpFalse) { stack.push(false); }
 
-    return std::next(current_ip);
-  }
-
-  Code::const_iterator operator()(OpGetGlobalVar op)
+  void operator()(OpGetGlobalVar op)
   {
     if (const auto search = vm.globals().find(op.global_variable_index);
         search == cend(vm.globals()))
@@ -117,52 +103,26 @@ struct Interpret
     else
     {
       stack.push(search->second);
-
-      return std::next(current_ip);
     }
   }
 
-  Code::const_iterator operator()(OpNegate)
-  {
-    stack.top() = -stack.top().as<double>();
+  void operator()(OpNegate) { stack.top() = -stack.top().as<double>(); }
 
-    return std::next(current_ip);
-  }
+  void operator()(OpNil) { stack.push(Nil{}); }
 
-  Code::const_iterator operator()(OpNil)
-  {
-    stack.push(Nil{});
+  void operator()(OpNot) { stack.push(stack.pop().falsey()); }
 
-    return std::next(current_ip);
-  }
+  void operator()(OpPop) { [[maybe_unused]] const auto _ = stack.pop(); }
 
-  Code::const_iterator operator()(OpNot)
-  {
-    stack.push(stack.pop().falsey());
+  void operator()(OpPrint) { std::cout << stack.pop() << '\n'; }
 
-    return std::next(current_ip);
-  }
-
-  Code::const_iterator operator()(OpPop)
-  {
-    [[maybe_unused]] const auto _ = stack.pop();
-
-    return std::next(current_ip);
-  }
-
-  Code::const_iterator operator()(OpPrint)
-  {
-    std::cout << stack.pop() << '\n';
-
-    return std::next(current_ip);
-  }
-
+  // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
   [[noreturn]] Code::const_iterator operator()(OpReturn)
   {
     throw InterpretReturn{InterpretResultStatus::ok};
   }
 
-  Code::const_iterator operator()(OpSetGlobal op)
+  void operator()(OpSetGlobal op)
   {
     if (auto search = vm.globals().find(op.global_variable_index); search == cend(vm.globals()))
     {
@@ -174,16 +134,34 @@ struct Interpret
     else
     {
       search->second = stack.top();
-
-      return std::next(current_ip);
     }
   }
 
-  Code::const_iterator operator()(OpTrue)
-  {
-    stack.push(true);
+  void operator()(OpTrue) { stack.push(true); }
+};
 
-    return std::next(current_ip);
+struct Interpret
+{
+  Chunk& chunk;
+  VM& vm;
+  Stack& stack;
+  const Code::const_iterator current_ip;
+
+  template<typename T>
+  [[nodiscard]] Code::const_iterator operator()(const T& x) const
+  {
+    static constexpr auto op_modifies_current_ip =
+      std::is_same<typename std::invoke_result<Dispatch, T>::type, Code::const_iterator>::value;
+
+    if constexpr (op_modifies_current_ip)
+    {
+      return Dispatch{chunk, vm, stack, current_ip}(x);
+    }
+    else
+    {
+      Dispatch{chunk, vm, stack, current_ip}(x);
+      return std::next(current_ip);
+    }
   }
 
   [[nodiscard]] Code::const_iterator visit() const
