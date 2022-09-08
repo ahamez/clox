@@ -65,9 +65,8 @@ public:
 
   friend std::ostream& operator<<(std::ostream& os, const Value& value);
 
-  std::string type() const;
-
-  const auto& value() const noexcept {return value_;}
+  [[nodiscard]] std::string type() const;
+  [[nodiscard]] const auto& value() const noexcept { return value_; }
 };
 
 // ---------------------------------------------------------------------------------------------- //
