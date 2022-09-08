@@ -10,7 +10,6 @@ target_sources(
   memory.cc
   obj_string.cc
   scanner.cc
-  stack.cc
   value.cc
   vm.cc
 )
@@ -26,6 +25,7 @@ target_sources(
   detail/compile.hh
   detail/index.hh
   detail/interpret.hh
+  detail/stack.hh
   detail/visitor.hh
   disassemble.hh
   expected.hh
@@ -34,7 +34,6 @@ target_sources(
   obj_string.hh
   opcode.hh
   scanner.hh
-  stack.hh
   value.hh
   vm.hh
   vm_result.hh

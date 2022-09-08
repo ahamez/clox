@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "clox/detail/interpret.hh"
+#include "clox/detail/stack.hh"
 #include "clox/disassemble.hh"
 #include "clox/vm.hh"
 
@@ -16,7 +17,7 @@ template<VM::opt_disassemble Disassemble>
 run(Chunk& chunk, VM& vm)
 {
   auto current_ip = chunk.code->cbegin();
-  auto stack = Stack{};
+  auto stack = detail::Stack{};
 
   try
   {
@@ -35,7 +36,7 @@ run(Chunk& chunk, VM& vm)
     {
       std::cerr << "line " << chunk.code->line(current_ip).value_or(0) << ": " << r.message << '\n';
     }
-    return {r.status, std::move(stack), std::move(chunk.memory)};
+    return {r.status, std::move(chunk.memory)};
   }
 }
 

@@ -8,6 +8,7 @@
 #include <fmt/core.h>
 
 #include "clox/code.hh"
+#include "clox/detail/stack.hh"
 #include "clox/detail/visitor.hh"
 #include "clox/nil.hh"
 #include "clox/obj_string.hh"
@@ -144,7 +145,7 @@ struct Interpret
 {
   Chunk& chunk;
   VM& vm;
-  Stack& stack;
+  detail::Stack& stack;
   const Code::const_iterator current_ip;
 
   template<typename T>
