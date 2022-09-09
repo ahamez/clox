@@ -113,7 +113,11 @@ struct Dispatch
 
   void operator()(OpNot) const { stack.push(stack.pop().falsey()); }
 
-  void operator()(OpPop) const { stack.pop_and_discard(); }
+  template<std::size_t N>
+  void operator()(OpPop<N>) const
+  {
+    pop_and_discard(std::make_index_sequence<N>{});
+  }
 
   void operator()(OpPrint) const { os << stack.pop() << '\n'; }
 
@@ -139,6 +143,14 @@ struct Dispatch
   }
 
   void operator()(OpTrue) const { stack.push(true); }
+
+private:
+  template<std::size_t... indexes>
+  void pop_and_discard(std::integer_sequence<std::size_t, indexes...>) const
+  {
+    // Call pop_and_discard as many times as there are indexes in the integer_sequence.
+    (..., [this](auto /* ignore index */) { stack.pop_and_discard(); }(indexes));
+  }
 };
 
 struct Interpret

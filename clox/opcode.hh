@@ -146,9 +146,10 @@ struct OpNot
 
 // ---------------------------------------------------------------------------------------------- //
 
+template<std::size_t N>
 struct OpPop
 {
-  [[nodiscard]] std::string disassemble(const auto&) const { return "OP_POP"; }
+  [[nodiscard]] std::string disassemble(const auto&) const { return fmt::format("OP_POP<{}>", N); }
 };
 
 // ---------------------------------------------------------------------------------------------- //
@@ -196,7 +197,8 @@ using Opcode = std::variant<OpAdd,
                             OpNegate,
                             OpNil,
                             OpNot,
-                            OpPop,
+                            OpPop<1>,
+                            OpPop<2>,
                             OpPrint,
                             OpSetGlobal,
                             OpSubtract,

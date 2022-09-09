@@ -363,7 +363,7 @@ Compile::expression_statement(Chunk& chunk)
 {
   expression(chunk);
   consume(TokenType::semicolon, "Expect ';' after expression.");
-  emit(chunk, previous_.line, OpPop{});
+  emit(chunk, previous_.line, OpPop<1>{});
 }
 
 void
