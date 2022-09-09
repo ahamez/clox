@@ -113,7 +113,7 @@ struct Dispatch
 
   void operator()(OpNot) const { stack.push(stack.pop().falsey()); }
 
-  void operator()(OpPop) const { [[maybe_unused]] const auto _ = stack.pop(); }
+  void operator()(OpPop) const { stack.pop_and_discard(); }
 
   void operator()(OpPrint) const { os << stack.pop() << '\n'; }
 

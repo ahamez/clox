@@ -23,6 +23,7 @@ public:
     stack_.pop_back();
     return value;
   }
+  void pop_and_discard() { [[maybe_unused]] const auto _ = pop(); }
 
   [[nodiscard]] const Value& top() const { return stack_.back(); }
   [[nodiscard]] Value& top() { return stack_.back(); }
