@@ -165,7 +165,7 @@ struct Interpret
   [[nodiscard]] Code::const_iterator operator()(const T& x) const
   {
     static constexpr auto op_modifies_current_ip =
-      std::is_same<typename std::invoke_result<Dispatch, T>::type, Code::const_iterator>::value;
+      std::is_same<std::invoke_result_t<Dispatch, T>, Code::const_iterator>::value;
 
     if constexpr (op_modifies_current_ip)
     {
