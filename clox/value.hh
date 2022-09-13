@@ -34,10 +34,12 @@ private:
 
 public:
   Value() = default;
+  // NOLINTBEGIN(hicpp-explicit-conversions)
   Value(Nil);
   Value(double);
   Value(bool);
   Value(const ObjString*);
+  // NOLINTEND(hicpp-explicit-conversions)
 
   template<typename T>
   [[nodiscard]] T as() const

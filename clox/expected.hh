@@ -6,6 +6,8 @@
 
 // ---------------------------------------------------------------------------------------------- //
 
+// NOLINTBEGIN(cppcoreguidelines-pro-type-union-access)
+
 namespace clox {
 
 template<typename T, typename E>
@@ -69,6 +71,7 @@ public:
       new (&error_) E{rhs.error_};
     }
   }
+  Expected& operator=(const Expected&) = default;
 
   Expected(Expected&& rhs) noexcept
     : valid_{rhs.valid_}
@@ -82,6 +85,7 @@ public:
       new (&error_) E{std::move(rhs.error_)};
     }
   }
+  Expected& operator=(Expected&&) noexcept = default;
 
   void swap(Expected& rhs)
   {
@@ -184,38 +188,4 @@ public:
 
 } // namespace clox
 
-// ok()
-
-// Expected<int, std::string>
-// foo(int x)
-//{
-//   if (x <= 42) {
-//     return Expected<int, std::string>::ok(42);
-//   } else {
-//     return Expected<int, std::string>::error("larger than universe");
-//   }
-// }
-//
-// template<typename Expected>
-// void
-// print(const Expected& e)
-//{
-//   if (e) {
-//     std::cout << "OK: " << e.get() << '\n';
-//   } else {
-//     std::cout << "ERROR: " << e.error() << '\n';
-//   }
-// }
-//
-// int
-// main()
-//{
-//   const auto res0 = foo(33);
-//   print(res0);
-//
-//   const auto res1 = foo(43);
-//   print(res1);
-//
-//
-//   return 0;
-// }
+// NOLINTEND(cppcoreguidelines-pro-type-union-access)

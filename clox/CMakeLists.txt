@@ -48,6 +48,7 @@ target_link_libraries(
   Boost::boost
   fmt::fmt
   magic_enum::magic_enum
+  Microsoft.GSL::GSL
   type_safe::type_safe
 )
 

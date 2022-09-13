@@ -19,15 +19,18 @@ public:
     : string_set_buckets_{string_set_nb_buckets}
     , string_set_{ObjStringSet::bucket_traits{string_set_buckets_.data(), string_set_nb_buckets}}
   {}
-  //  TODO: check if move constructor is valid with an intrusive container
-  Memory(Memory&&) = default;
+
   ~Memory();
+  //  TODO: check if move constructor is valid with an intrusive container
+  Memory(const Memory&) = delete;
+  Memory(Memory&&) noexcept = default;
+  Memory& operator=(const Memory&) = delete;
+  Memory& operator=(Memory&&) = default;
 
   [[nodiscard]] const ObjString* make_string(std::string);
 
   [[nodiscard]] detail::GlobalVariableIndex maybe_add_global_variable(const std::string&);
   [[nodiscard]] std::string get_global_variable(detail::GlobalVariableIndex) const;
-  [[nodiscard]] detail::GlobalVariableIndex last_global_variable_index() const noexcept;
 
 private:
   std::vector<ObjStringSet::bucket_type> string_set_buckets_;

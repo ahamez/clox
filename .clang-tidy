@@ -1,23 +1,23 @@
 ---
-Checks: 'clang-diagnostic-*,
-        clang-analyzer-*,
-        boost*,
-        bugprone-*,
-        cert-*,
-        clang-analyzer-*,
-        clang-diagnostic-*,
-        misc-*,
-        modernize-*,
-        -modernize-use-trailing-return-type,
-        performance-*,
-        readability-*,
-        -readability-identifier-length,
-        -readability-else-after-return,
-        -readability-named-parameter,
-        -readability-redundant-access-specifiers
-        '
-WarningsAsErrors: '*'
+Checks: '*,
+    -*-osx*,
+    -altera-*,
+    -android-*,
+    -cert-flp30-c,
+    -fuchsia-*,
+    -google-*,
+    -hicpp-named-parameter,
+    -llvm*,
+    -modernize-use-default-member-init,
+    -modernize-use-trailing-return-type,
+    -modernize-loop-convert,
+    -readability-else-after-return,
+    -readability-identifier-length,
+    -readability-named-parameter,
+    -readability-redundant-access-specifiers,
+    -zircon-temporary-objects'
 FormatStyle: file
+WarningsAsErrors: '*'
 CheckOptions:
   - key: misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
     value: 'true'

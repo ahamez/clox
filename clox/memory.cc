@@ -1,6 +1,7 @@
 #include "clox/memory.hh"
 
 #include <fmt/core.h>
+#include <gsl/pointers>
 
 namespace clox {
 
@@ -8,7 +9,7 @@ namespace clox {
 
 Memory::~Memory()
 {
-  string_set_.clear_and_dispose([](auto obj) { delete obj; });
+  string_set_.clear_and_dispose([](gsl::owner<ObjString*> obj) { delete obj; });
 }
 
 // ---------------------------------------------------------------------------------------------- //
@@ -72,12 +73,6 @@ Memory::get_global_variable(clox::detail::GlobalVariableIndex index) const
     throw std::runtime_error{
       fmt::format("Variable with index {} not found ", static_cast<std::uint16_t>(index))};
   }
-}
-
-detail::GlobalVariableIndex
-Memory::last_global_variable_index() const noexcept
-{
-  return last_global_variable_index_;
 }
 
 // ---------------------------------------------------------------------------------------------- //

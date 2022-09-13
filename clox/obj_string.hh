@@ -15,6 +15,10 @@ namespace bi = boost::intrusive;
 struct ObjString : public bi::unordered_set_base_hook<bi::link_mode<bi::normal_link>>
 {
   ObjString(const ObjString&) = delete;
+  ~ObjString() = default;
+  ObjString(ObjString&&) = delete;
+  ObjString& operator=(const ObjString&) = delete;
+  ObjString& operator=(ObjString&&) noexcept = delete;
 
   std::string str;
 

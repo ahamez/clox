@@ -1,5 +1,6 @@
 #include <iostream>
 #include <memory>
+#include <span>
 
 #include "clox/compile.hh"
 #include "clox/scanner.hh"
@@ -76,10 +77,12 @@ repl()
 // ---------------------------------------------------------------------------------------------- //
 
 int
-main(int argc, char** argv)
+main(int argc, char** _argv)
 {
   try
   {
+    const auto argv = std::span{_argv, static_cast<std::size_t>(argc)};
+
     using namespace clox;
 
     std::cout << "Clox interpreter (v" << CLOX_VERSION << ")\n";

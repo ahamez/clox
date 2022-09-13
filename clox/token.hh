@@ -67,8 +67,8 @@ struct Token
   {}
 
   TokenType type{TokenType::error};
-  std::string_view token;
-  std::size_t line;
+  std::string_view token{};
+  std::size_t line{};
 };
 
 // ---------------------------------------------------------------------------------------------- //
