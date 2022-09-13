@@ -30,10 +30,10 @@ struct BadValueAccess : public std::exception
 class Value
 {
 private:
-  std::variant<double, bool, Nil, const ObjString*> value_;
+  std::variant<double, bool, Nil, const ObjString*> value_{Nil{}};
 
 public:
-  Value();
+  Value() = default;
   Value(Nil);
   Value(double);
   Value(bool);
