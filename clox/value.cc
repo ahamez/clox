@@ -47,11 +47,6 @@ Value::operator==(const Value& rhs) const
                     value_,
                     rhs.value_);
 }
-bool
-Value::operator!=(const Value& rhs) const
-{
-  return !(rhs == *this);
-}
 
 // ---------------------------------------------------------------------------------------------- //
 

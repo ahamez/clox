@@ -63,7 +63,6 @@ public:
   [[nodiscard]] bool falsey() const;
 
   bool operator==(const Value& rhs) const;
-  bool operator!=(const Value& rhs) const;
 
   friend std::ostream& operator<<(std::ostream& os, const Value& value);
 
