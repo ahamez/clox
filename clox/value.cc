@@ -36,16 +36,26 @@ Value::falsey() const
 // ---------------------------------------------------------------------------------------------- //
 
 bool
-Value::operator==(const Value& rhs) const
+operator==(const Value& lhs, const Value& rhs)
 {
-  return std::visit(detail::visitor{[](bool lhs, bool rhs) { return lhs == rhs; },
-                                    [](double lhs, double rhs) { return lhs == rhs; },
-                                    [](Nil, Nil) { return true; },
-                                    [](const ObjString* lhs, const ObjString* rhs)
-                                    { return *lhs == *rhs; },
-                                    [](const auto&, const auto&) { return false; }},
-                    value_,
-                    rhs.value_);
+  return (lhs <=> rhs) == std::partial_ordering::equivalent;
+}
+
+std::partial_ordering
+operator<=>(const Value& lhs, const Value& rhs)
+{
+  return std::visit(
+    detail::visitor{
+      [](bool lhs, bool rhs) -> std::partial_ordering
+      { return lhs == rhs ? std::partial_ordering::equivalent : std::partial_ordering::unordered; },
+      [](double lhs, double rhs) -> std::partial_ordering { return lhs <=> rhs; },
+      [](Nil, Nil) -> std::partial_ordering { return std::partial_ordering::equivalent; },
+      [](const ObjString* lhs, const ObjString* rhs) -> std::partial_ordering
+      { return *lhs <=> *rhs; },
+      [](const auto&, const auto&) -> std::partial_ordering
+      { return std::partial_ordering::unordered; }},
+    lhs.value_,
+    rhs.value_);
 }
 
 // ---------------------------------------------------------------------------------------------- //

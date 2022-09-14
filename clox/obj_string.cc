@@ -10,16 +10,20 @@ ObjString::ObjString(std::string str)
 
 // ---------------------------------------------------------------------------------------------- //
 
-bool
-ObjString::operator==(const ObjString& rhs) const noexcept
+std::strong_ordering
+operator<=>(const ObjString& lhs, const ObjString& rhs) noexcept
 {
-  return str == rhs.str;
+  // The following _should_ work, but it doesn't compile 🤔.
+  // return lhs.str <=> rhs.str;
+  return lhs.str == rhs.str  ? std::strong_ordering::equal
+         : lhs.str < rhs.str ? std::strong_ordering::less
+                             : std::strong_ordering::greater;
 }
 
 bool
-ObjString::operator!=(const ObjString& rhs) const noexcept
+operator==(const ObjString& lhs, const ObjString& rhs) noexcept
 {
-  return !(rhs == *this);
+  return lhs.str == rhs.str;
 }
 
 std::ostream&

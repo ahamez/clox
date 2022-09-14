@@ -1,5 +1,6 @@
 #pragma once
 
+#include <compare>
 #include <iosfwd>
 #include <variant>
 
@@ -62,9 +63,10 @@ public:
 
   [[nodiscard]] bool falsey() const;
 
-  bool operator==(const Value& rhs) const;
+  friend bool operator==(const Value&, const Value&);
+  friend std::partial_ordering operator<=>(const Value&, const Value&);
 
-  friend std::ostream& operator<<(std::ostream& os, const Value& value);
+  friend std::ostream& operator<<(std::ostream&, const Value&);
 
   [[nodiscard]] std::string type() const;
   [[nodiscard]] const auto& value() const noexcept { return value_; }

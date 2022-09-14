@@ -60,14 +60,14 @@ using OpSubtract = OpBinary<OpSubtractImpl>;
 struct OpGreaterImpl
 {
   static constexpr std::string_view sv = "OP_GREATER";
-  Value operator()(Value lhs, Value rhs) const { return lhs.as<double>() > rhs.as<double>(); }
+  Value operator()(Value lhs, Value rhs) const { return lhs > rhs; }
 };
 using OpGreater = OpBinary<OpGreaterImpl>;
 
 struct OpLessImpl
 {
   static constexpr std::string_view sv = "OP_LESS";
-  Value operator()(Value lhs, Value rhs) const { return lhs.as<double>() < rhs.as<double>(); }
+  Value operator()(Value lhs, Value rhs) const { return lhs < rhs; }
 };
 using OpLess = OpBinary<OpLessImpl>;
 

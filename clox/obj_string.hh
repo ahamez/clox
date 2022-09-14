@@ -1,5 +1,6 @@
 #pragma once
 
+#include <compare>
 #include <iosfwd>
 #include <string>
 #include <typeindex>
@@ -24,8 +25,8 @@ struct ObjString : public bi::unordered_set_base_hook<bi::link_mode<bi::normal_l
 
   explicit ObjString(std::string);
 
-  bool operator==(const ObjString&) const noexcept;
-  bool operator!=(const ObjString&) const noexcept;
+  friend bool operator==(const ObjString&, const ObjString&) noexcept;
+  friend std::strong_ordering operator<=>(const ObjString&, const ObjString&) noexcept;
 
   friend std::ostream& operator<<(std::ostream& os, const ObjString& string);
 };
