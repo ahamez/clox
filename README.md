@@ -1,3 +1,5 @@
+[![CodeQL](https://github.com/ahamez/clox/actions/workflows/build.yml/badge.svg)](https://github.com/ahamez/clox/actions/workflows/build.yml)
+
 # Clox
 
 A C++ version of the interpreter shown in the book "Crafting Interpreters."

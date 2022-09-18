@@ -1,0 +1,59 @@
+name: "CodeQL"
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  schedule:
+    - cron: '43 12 * * 6'
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-22.04
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'cpp' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v2
+      with:
+        languages: ${{ matrix.language }}
+
+    - name: Get Conan
+      uses: turtlebrowser/get-conan@v1.1
+
+    - name: Configure Conan
+      run: |
+        conan profile new --detect default
+        conan profile update settings.compiler.libcxx=libstdc++11 default
+
+    - name: Install tools
+      run: |
+        sudo apt update
+        sudo apt upgrade
+        sudo apt install -y clang-tidy cppcheck
+
+    - run: |
+        mkdir build
+        cd build
+        conan install .. --build=missing -s build_type=Debug
+        cmake .. -DCMAKE_BUILD_TYPE=Debug -DCLOX_STATIC_ANALYSIS:BOOL=1
+        make -j
+        make test
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
+      with:
+        category: "/language:${{matrix.language}}"
