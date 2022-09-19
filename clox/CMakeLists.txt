@@ -37,9 +37,9 @@ target_sources(
   vm.hh
 )
 
-if (ipo_supported)
-  set_property(TARGET clox PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
-endif ()
+#if (ipo_supported)
+#  set_property(TARGET clox PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+#endif ()
 
 target_link_libraries(
   clox
