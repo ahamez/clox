@@ -432,7 +432,8 @@ Compile::parse_precedence(Chunk& chunk, Precedence precedence)
 Compile::CompileResult
 Compile::operator()(std::shared_ptr<Memory> memory)
 {
-  auto chunk = Chunk{std::make_shared<Code>(), memory};
+  auto code = std::make_shared<Code>();
+  auto chunk = Chunk{code, memory};
 
   advance();
 
