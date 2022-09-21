@@ -26,6 +26,7 @@ target_sources(
   detail/index.hh
   detail/interpret.hh
   detail/stack.hh
+  detail/token.hh
   detail/visitor.hh
   disassemble.hh
   memory.hh

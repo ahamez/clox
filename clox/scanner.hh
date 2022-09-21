@@ -4,7 +4,7 @@
 #include <string>
 #include <string_view>
 
-#include "clox/token.hh"
+#include "clox/detail/token.hh"
 
 namespace clox {
 

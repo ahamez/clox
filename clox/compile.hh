@@ -31,28 +31,28 @@ private:
   [[nodiscard]] bool check(TokenType) const noexcept;
   void synchronize();
 
-  void expression(Chunk&);
+  void expression(detail::CompileContext&);
 
-  void binary(Chunk&, detail::CanAssign);
-  void grouping(Chunk&, detail::CanAssign);
-  void literal(Chunk&, detail::CanAssign);
-  void number(Chunk&, detail::CanAssign);
-  void unary(Chunk&, detail::CanAssign);
-  void string(Chunk&, detail::CanAssign);
-  void variable(Chunk&, detail::CanAssign);
-  void named_variable(Chunk&, Token, detail::CanAssign);
+  void binary(detail::CompileContext&, detail::CanAssign);
+  void grouping(detail::CompileContext&, detail::CanAssign);
+  void literal(detail::CompileContext&, detail::CanAssign);
+  void number(detail::CompileContext&, detail::CanAssign);
+  void unary(detail::CompileContext&, detail::CanAssign);
+  void string(detail::CompileContext&, detail::CanAssign);
+  void variable(detail::CompileContext&, detail::CanAssign);
+  void named_variable(detail::CompileContext&, Token, detail::CanAssign);
 
-  void declaration(Chunk&);
-  void statement(Chunk&);
+  void declaration(detail::CompileContext&);
+  void statement(detail::CompileContext&);
 
-  void print_statement(Chunk&);
-  void expression_statement(Chunk&);
+  void print_statement(detail::CompileContext&);
+  void expression_statement(detail::CompileContext&);
 
-  void var_declaration(Chunk&);
-  detail::GlobalVariableIndex parse_variable(Chunk&, const std::string& error_msg);
+  void var_declaration(detail::CompileContext&);
+  detail::GlobalVariableIndex parse_variable(detail::CompileContext&, const std::string& error_msg);
 
   [[nodiscard]] static constexpr const detail::ParseRule& get_rule(TokenType);
-  void parse_precedence(Chunk&, detail::Precedence);
+  void parse_precedence(detail::CompileContext&, detail::Precedence);
 
   void error_at_current(const std::string&);
   void error_at_previous(const std::string&);

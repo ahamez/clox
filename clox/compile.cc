@@ -17,17 +17,17 @@ namespace {
 
 template<typename Opcode>
 void
-emit(Chunk& chunk, std::size_t line, Opcode&& op)
+emit(CompileContext& cxt, std::size_t line, Opcode&& op)
 {
-  chunk.code->add_opcode(std::forward<Opcode>(op), line);
+  cxt.chunk.code->add_opcode(std::forward<Opcode>(op), line);
 }
 
 template<typename Opcode, typename... Opcodes>
 void
-emit(Chunk& chunk, std::size_t line, Opcode&& op, Opcodes&&... ops)
+emit(CompileContext& cxt, std::size_t line, Opcode&& op, Opcodes&&... ops)
 {
-  chunk.code->add_opcode(std::forward<Opcode>(op), line);
-  emit(chunk, line, std::forward<Opcodes>(ops)...);
+  cxt.chunk.code->add_opcode(std::forward<Opcode>(op), line);
+  emit(cxt, line, std::forward<Opcodes>(ops)...);
 }
 
 } // namespace
@@ -129,6 +129,7 @@ Compile::match(TokenType tokenType)
     return true;
   }
 }
+
 bool
 Compile::check(TokenType token_type) const noexcept
 {
@@ -182,24 +183,24 @@ Compile::synchronize()
 // ---------------------------------------------------------------------------------------------- //
 
 void
-Compile::expression(Chunk& chunk)
+Compile::expression(CompileContext& cxt)
 {
-  parse_precedence(chunk, Precedence::assignement);
+  parse_precedence(cxt, Precedence::assignement);
 }
 
 void
-Compile::literal(Chunk& chunk, CanAssign) // NOLINT(readability-make-member-function-const)
+Compile::literal(CompileContext& cxt, CanAssign) // NOLINT(readability-make-member-function-const)
 {
   switch (previous_.type)
   {
     case TokenType::false_:
-      emit(chunk, previous_.line, OpFalse{});
+      emit(cxt, previous_.line, OpFalse{});
       break;
     case TokenType::true_:
-      emit(chunk, previous_.line, OpTrue{});
+      emit(cxt, previous_.line, OpTrue{});
       break;
     case TokenType::nil:
-      emit(chunk, previous_.line, OpNil{});
+      emit(cxt, previous_.line, OpNil{});
       break;
     default:
       __builtin_unreachable();
@@ -207,34 +208,34 @@ Compile::literal(Chunk& chunk, CanAssign) // NOLINT(readability-make-member-func
 }
 
 void
-Compile::number(Chunk& chunk, CanAssign) // NOLINT(readability-make-member-function-const)
+Compile::number(CompileContext& cxt, CanAssign) // NOLINT(readability-make-member-function-const)
 {
   const auto value = std::stod(previous_.token.data());
-  emit(chunk, previous_.line, OpConstant{chunk.code->add_constant(value)});
+  emit(cxt, previous_.line, OpConstant{cxt.chunk.code->add_constant(value)});
 }
 
 void
-Compile::grouping(Chunk& chunk, CanAssign)
+Compile::grouping(CompileContext& cxt, CanAssign)
 {
-  expression(chunk);
+  expression(cxt);
   consume(TokenType::right_paren, "Expect ')' after expression.");
 }
 
 void
-Compile::unary(Chunk& chunk, CanAssign)
+Compile::unary(CompileContext& cxt, CanAssign)
 {
   const auto operator_type = previous_.type;
 
   // Compile the operand.
-  parse_precedence(chunk, Precedence::unary);
+  parse_precedence(cxt, Precedence::unary);
 
   switch (operator_type)
   {
     case TokenType::bang:
-      emit(chunk, previous_.line, OpNot{});
+      emit(cxt, previous_.line, OpNot{});
       break;
     case TokenType::minus:
-      emit(chunk, previous_.line, OpNegate{});
+      emit(cxt, previous_.line, OpNegate{});
       break;
     default:
       __builtin_unreachable();
@@ -242,43 +243,43 @@ Compile::unary(Chunk& chunk, CanAssign)
 }
 
 void
-Compile::binary(Chunk& chunk, CanAssign)
+Compile::binary(CompileContext& cxt, CanAssign)
 {
   const auto operator_type = previous_.type;
   const auto rule = get_rule(operator_type);
-  parse_precedence(chunk, rule.precedence);
+  parse_precedence(cxt, rule.precedence);
 
   switch (operator_type)
   {
     case TokenType::plus:
-      emit(chunk, previous_.line, OpAdd{});
+      emit(cxt, previous_.line, OpAdd{});
       break;
     case TokenType::minus:
-      emit(chunk, previous_.line, OpSubtract{});
+      emit(cxt, previous_.line, OpSubtract{});
       break;
     case TokenType::star:
-      emit(chunk, previous_.line, OpMultiply{});
+      emit(cxt, previous_.line, OpMultiply{});
       break;
     case TokenType::slash:
-      emit(chunk, previous_.line, OpDivide{});
+      emit(cxt, previous_.line, OpDivide{});
       break;
     case TokenType::bang_equal:
-      emit(chunk, previous_.line, OpEqual{}, OpNot{});
+      emit(cxt, previous_.line, OpEqual{}, OpNot{});
       break;
     case TokenType::equal_equal:
-      emit(chunk, previous_.line, OpEqual{});
+      emit(cxt, previous_.line, OpEqual{});
       break;
     case TokenType::greater:
-      emit(chunk, previous_.line, OpGreater{});
+      emit(cxt, previous_.line, OpGreater{});
       break;
     case TokenType::greater_equal:
-      emit(chunk, previous_.line, OpLess{}, OpNot{});
+      emit(cxt, previous_.line, OpLess{}, OpNot{});
       break;
     case TokenType::less:
-      emit(chunk, previous_.line, OpLess{});
+      emit(cxt, previous_.line, OpLess{});
       break;
     case TokenType::less_equal:
-      emit(chunk, previous_.line, OpGreater{}, OpNot{});
+      emit(cxt, previous_.line, OpGreater{}, OpNot{});
       break;
     default:
       __builtin_unreachable();
@@ -286,22 +287,22 @@ Compile::binary(Chunk& chunk, CanAssign)
 }
 
 void
-Compile::string(Chunk& chunk, CanAssign) // NOLINT(readability-make-member-function-const)
+Compile::string(CompileContext& cxt, CanAssign) // NOLINT(readability-make-member-function-const)
 {
-  const auto* obj = chunk.memory->make_string(std::string{previous_.token});
-  emit(chunk, previous_.line, OpConstant{chunk.code->add_constant(obj)});
+  const auto* obj = cxt.chunk.memory->make_string(std::string{previous_.token});
+  emit(cxt, previous_.line, OpConstant{cxt.chunk.code->add_constant(obj)});
 }
 
 void
-Compile::declaration(Chunk& chunk)
+Compile::declaration(CompileContext& cxt)
 {
   if (match(TokenType::var))
   {
-    var_declaration(chunk);
+    var_declaration(cxt);
   }
   else
   {
-    statement(chunk);
+    statement(cxt);
   }
 
   if (panic_mode_)
@@ -311,87 +312,87 @@ Compile::declaration(Chunk& chunk)
 }
 
 void
-Compile::statement(Chunk& chunk)
+Compile::statement(CompileContext& cxt)
 {
   if (match(TokenType::print))
   {
-    print_statement(chunk);
+    print_statement(cxt);
   }
   else
   {
-    expression_statement(chunk);
+    expression_statement(cxt);
   }
 }
 
 void
-Compile::variable(clox::Chunk& chunk, CanAssign can_assign)
+Compile::variable(CompileContext& cxt, CanAssign can_assign)
 {
-  named_variable(chunk, previous_, can_assign);
+  named_variable(cxt, previous_, can_assign);
 }
 
 void
-Compile::named_variable(Chunk& chunk,
+Compile::named_variable(CompileContext& cxt,
                         Token token,
                         CanAssign can_assign) // NOLINT(readability-make-member-function-const)
 {
   const auto var_name = std::string{token.token};
-  const auto index = chunk.memory->maybe_add_global_variable(var_name);
+  const auto index = cxt.chunk.memory->maybe_add_global_variable(var_name);
 
   if (can_assign == CanAssign::yes and match(TokenType::equal))
   {
-    expression(chunk);
-    emit(chunk, previous_.line, OpSetGlobal{index});
+    expression(cxt);
+    emit(cxt, previous_.line, OpSetGlobal{index});
   }
   else
   {
-    emit(chunk, previous_.line, OpGetGlobalVar{index});
+    emit(cxt, previous_.line, OpGetGlobalVar{index});
   }
 }
 
 // ---------------------------------------------------------------------------------------------- //
 
 void
-Compile::print_statement(Chunk& chunk)
+Compile::print_statement(CompileContext& cxt)
 {
-  expression(chunk);
+  expression(cxt);
   consume(TokenType::semicolon, "Expect ';' after expression.");
-  emit(chunk, previous_.line, OpPrint{});
+  emit(cxt, previous_.line, OpPrint{});
 }
 
 void
-Compile::expression_statement(Chunk& chunk)
+Compile::expression_statement(CompileContext& cxt)
 {
-  expression(chunk);
+  expression(cxt);
   consume(TokenType::semicolon, "Expect ';' after expression.");
-  emit(chunk, previous_.line, OpPop<1>{});
+  emit(cxt, previous_.line, OpPop<1>{});
 }
 
 void
-Compile::var_declaration(Chunk& chunk)
+Compile::var_declaration(CompileContext& cxt)
 {
-  const auto var_index = parse_variable(chunk, "Expect variable name");
+  const auto var_index = parse_variable(cxt, "Expect variable name");
 
   if (match(TokenType::equal))
   {
-    expression(chunk);
+    expression(cxt);
   }
   else
   {
-    emit(chunk, previous_.line, OpNil{});
+    emit(cxt, previous_.line, OpNil{});
   }
 
   consume(TokenType::semicolon, "Expect ';' after variable declaration");
 
-  emit(chunk, previous_.line, OpDefineGlobalVar{var_index});
+  emit(cxt, previous_.line, OpDefineGlobalVar{var_index});
 }
 
 GlobalVariableIndex
-Compile::parse_variable(Chunk& chunk, const std::string& error_msg)
+Compile::parse_variable(CompileContext& cxt, const std::string& error_msg)
 {
   consume(TokenType::identifier, error_msg);
   const auto var_name = std::string{previous_.token};
 
-  return chunk.memory->maybe_add_global_variable(var_name);
+  return cxt.chunk.memory->maybe_add_global_variable(var_name);
 }
 
 // ---------------------------------------------------------------------------------------------- //
@@ -404,7 +405,7 @@ Compile::get_rule(TokenType token_type)
 }
 
 void
-Compile::parse_precedence(Chunk& chunk, Precedence precedence)
+Compile::parse_precedence(CompileContext& cxt, Precedence precedence)
 {
   advance();
 
@@ -417,13 +418,13 @@ Compile::parse_precedence(Chunk& chunk, Precedence precedence)
 
   const auto can_assign =
     precedence <= Precedence::assignement ? detail::CanAssign::yes : detail::CanAssign::no;
-  std::invoke(prefix_rule, this, chunk, can_assign);
+  std::invoke(prefix_rule, this, cxt, can_assign);
 
   while (precedence <= get_rule(current_.type).precedence)
   {
     advance();
     const auto& infix_rule = get_rule(previous_.type).infix;
-    std::invoke(infix_rule, this, chunk, can_assign);
+    std::invoke(infix_rule, this, cxt, can_assign);
   }
 }
 
@@ -433,16 +434,16 @@ Compile::CompileResult
 Compile::operator()(std::shared_ptr<Memory> memory)
 {
   auto code = std::make_shared<Code>();
-  auto chunk = Chunk{code, memory};
+  auto cxt = CompileContext{Chunk{code, memory}};
 
   advance();
 
   while (not match(TokenType::eof))
   {
-    declaration(chunk);
+    declaration(cxt);
   }
 
-  emit(chunk, previous_.line, OpReturn{});
+  emit(cxt, previous_.line, OpReturn{});
 
   if (had_error_)
   {
@@ -450,7 +451,7 @@ Compile::operator()(std::shared_ptr<Memory> memory)
   }
   else
   {
-    return chunk;
+    return cxt.chunk;
   }
 }
 

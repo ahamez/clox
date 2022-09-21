@@ -12,3 +12,7 @@ A C++ version of the interpreter shown in the book "Crafting Interpreters."
     * But, as it's a discriminated union, its size is the size of the largest operand, in this case 4 bytes, which is
       quite large 😬
 * Objects are stored in list specific to each type of object, rather than a single list for all types of objects.
+
+## Install requirements
+
+conan install .. --build=missing -pr=clang14 -s build_type=Debug

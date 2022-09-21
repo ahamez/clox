@@ -3,10 +3,12 @@
 #include <array>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include <magic_enum.hpp>
 
 #include "clox/chunk.hh"
+#include "clox/detail/token.hh"
 #include "clox/scanner.hh"
 
 // ---------------------------------------------------------------------------------------------- //
@@ -20,6 +22,23 @@ class Compile;
 
 namespace clox::detail {
 
+struct Local
+{
+  Token name;
+  std::size_t depth;
+};
+
+struct CompileContext
+{
+  explicit CompileContext(Chunk&& chunk)
+    : chunk{std::move(chunk)}
+  {}
+
+  Chunk chunk;
+  std::vector<Local> locals{};
+  std::size_t scope_depth{0};
+};
+
 // ---------------------------------------------------------------------------------------------- //
 
 enum class CanAssign
@@ -28,7 +47,7 @@ enum class CanAssign
   no
 };
 
-using ParseFn = void (Compile::*)(Chunk&, CanAssign);
+using ParseFn = void (Compile::*)(CompileContext&, CanAssign);
 
 enum class Precedence
 {
