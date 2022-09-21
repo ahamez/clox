@@ -400,7 +400,9 @@ Compile::parse_variable(CompileContext& cxt, const std::string& error_msg)
 constexpr const ParseRule&
 Compile::get_rule(TokenType token_type)
 {
+  // `rules` has the correct size by definition.
   assert(magic_enum::enum_index(token_type).has_value());
+  // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
   return parser_rules_[magic_enum::enum_index(token_type).value()];
 }
 

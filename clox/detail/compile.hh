@@ -24,8 +24,8 @@ namespace clox::detail {
 
 struct Local
 {
-  Token name;
-  std::size_t depth;
+  Token name{};
+  std::size_t depth{};
 };
 
 struct CompileContext
@@ -91,6 +91,9 @@ template<typename T>
 constexpr ParserRules
 make_rules_impl(ParserRules& rules, T x)
 {
+  // `rules` has the correct size by definition.
+  assert(magic_enum::enum_index(x.token_type).has_value());
+  // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
   rules[magic_enum::enum_index(x.token_type).value()] = x.parse_rule;
   return rules;
 }
@@ -99,6 +102,9 @@ template<typename T, typename... Ts>
 constexpr ParserRules
 make_rules_impl(ParserRules& rules, T x, Ts... xs)
 {
+  // `rules` has the correct size by definition.
+  assert(magic_enum::enum_index(x.token_type).has_value());
+  // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
   rules[magic_enum::enum_index(x.token_type).value()] = x.parse_rule;
   return make_rules_impl<Ts...>(rules, std::forward<Ts>(xs)...);
 }
