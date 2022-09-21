@@ -5,6 +5,10 @@
 #include <string>
 #include <typeindex>
 
+// Avoid an error with clang 15 where std::unary_function has been removed.
+// A fix in boost has been commited, but it's not yet available in a release.
+// https://stackoverflow.com/a/73364020/21584
+#define BOOST_NO_CXX98_FUNCTION_BASE
 #include <boost/intrusive/unordered_set.hpp>
 
 namespace clox {
